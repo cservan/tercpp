@@ -1,0 +1,36 @@
+1 - 	Unpack. This should give a top-level directory with the subdirectories
+    	listed in README, as well as a few documentation files and a Makefile.
+    
+2 - 	You need a SunOS (Sparc or i386), Linux i386/x86_64 or Mac OSX platform 
+	to compile out of the box. Other platforms are untested.
+    
+3 - 	You need the following free third-party software to build tercpp:
+
+		- gcc version 4.2.1 or higher (older versions might work, 
+		  but are untested)
+		- GNU make
+		- gzip, to read/write compressed files
+		- boost version 1.52.0 or higher (may work with lower versions,
+		  untested)
+		- GNU cmake
+		- GNU autoconf
+		- GNU automake
+
+4 - 	By default, the Makefile will look into the /usr directory for boost
+	(/usr/include/boost for includes, /usr/lib or /usr/lib64 for libraries), 
+	but you can specify variables in the CMakeLists.txt lines:
+	
+		- include_directories(INCLUDEDIR), replace "INCLUDEDIR" by the directory which contains the includes you looking for
+		- link_directories(LIBDIR), replace "INCLUDEDIR" by the directory which contains the libraries you looking for
+		- set the option -DCMAKE_INSTALL_PREFIX= to the directory you want the tercpp and library be installed (i.e. : /usr).
+
+6 - 	In the top-level directory, run:
+
+		cbuild.sh to build and install.
+
+	optionally with one or more variables described in steps 4 and 5.
+
+
+7 - 	(Optional) To clean the obj directory of object files:
+
+		rm build -rf

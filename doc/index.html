@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+	
+<HTML>
+<HEAD>
+	<TITLE>tercpp - Documentation</TITLE>
+</HEAD>
+
+<BODY>
+	<H1>tercpp - Documentation</H1>
+	
+	<H2>1 - Description</H2>
+	
+	tercpp is an open-source Translation Edit Rate (TER) scorer tool for Machine Translation.
+
+	<P>
+To reference tercpp in your publications, please cite this article:
+
+@article{servanPBML2011,
+  title={Optimising multiple metrics with mert},
+  author={Servan, Christophe and Schwenk, Holger},
+  journal={The Prague Bulletin of Mathematical Linguistics},
+  volume={96},
+  number={1},
+  pages={109--117},
+  year={2011},
+  publisher={Versita}
+}
+<P>
+
+	It implements the Snover's algorithm provided at http://www.cs.umd.edu/~snover/tercom </BR></BR>
+    
+	References:</BR> 
+	Matthew Snover, Bonnie Dorr, Richard Schwartz, Linnea Micciulla and John Makhoul, "A Study of Translation Edit Rate with Targeted Human Annotation," Proceedings of Association for Machine Translation in the Americas, 2006.</BR>
+	Matthew Snover, Bonnie J. Dorr, Richard Schwartz, John Makhoul, Linnea Micciulla and Ralph Weischedel, "A Study of Translation Error Rate with Targeted Human Annotation," LAMP-TR-126, CS-TR-4755, UMIACS-TR-2005-58, University of Maryland, College Park, MD July, 2005.</BR>
+	
+	<H2>2 - Options</H2>
+	<CODE> tercpp [--tercom] [--debugMode] [--debugLevel 0-3] [--noTxtIds] [--printAlignments] [--printTrackAlignments]  [-s] [-P] [--WER] -r ref[,ref2,ref3...] -h hyp [-D delete_cost] [-B substitute_cost] [-I insert_cost] [-T shift_cost]</CODE></BR>
+	<TABLE border="0">
+               <TR><TD>  <CODE>--tercom</CODE>       </TD><TD>to use the tercom standart normalization</TD></TR>
+               <TR><TD>  <CODE>--noTxtIds</CODE>     </TD><TD>you don't have to add ids at the end of sentences</TD></TR>
+               <TR><TD>  <CODE>--sgml</CODE>         </TD><TD>to score with sgml files (incompatible with --noTxtIds and plain text files)</TD></TR>
+               <TR><TD>  <CODE>--debugMode</CODE>    </TD><TD>print debug messages</TD></TR>
+               <TR><TD>  <CODE>-s or -c</CODE>       </TD><TD>to be case sensitive</TD></TR>
+               <TR><TD>  <CODE>-P</CODE>             </TD><TD>do not take account of punctuation</TD></TR>
+               <TR><TD>  <CODE>--help</CODE>         </TD><TD>print this help message.</TD></TR>
+               <TR><TD>  <CODE>--printAlignments</CODE> </TD><TD>print all the final alignements in a separate output file</TD></TR>
+  	</TABLE>
+
+	<P>
+	
+    
+	<H2>2 - Common usage examples</H2>
+    Simplest example (evaluating a hypothesis file and a reference file):</BR>
+	<CODE>tercpp --noTxtIds -r ref.txt -h hyp.txt</CODE></BR>
+	In this example, the hypothesis file "hyp.txt" is evaluated regarding the file "ref.txt" as reference.</BR>
+	Each line of the hypothesis have to correspond to each line of the reference.</BR>
+	In other terms, hypothesis and reference files must have the amount of lines</BR>
+	<P>
+	<H2>3 - Contact</H2>
+	<A HREF="mailto:christophe.servan@gmail.com">christophe.servan@gmail.com</A>
+</BODY>
+</HTML>
