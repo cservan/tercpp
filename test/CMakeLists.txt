@@ -48,12 +48,13 @@ SET(tercpp_SRCS
    ${CMAKE_SOURCE_DIR}/src/multiTxtDocument.cpp
    ${CMAKE_SOURCE_DIR}/src/documentStructure.cpp
    ${CMAKE_SOURCE_DIR}/src/multiEvaluation.cpp
+   ${CMAKE_SOURCE_DIR}/src/distance.cpp
 )
 
-add_executable(tercpp.0.7.1 ${tercpp_SRCS})
+add_executable(tercpp.0.8 ${tercpp_SRCS})
 
 #target_link_libraries(tercpp.0.7.1 tcmalloc)
 # target_link_libraries(tercpp tercalc xmlStructure documentStructure multiEvaluation)
 
-install(TARGETS tercpp.0.7.1 DESTINATION bin)
+install(TARGETS tercpp.0.8 DESTINATION bin)
 

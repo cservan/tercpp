@@ -44,6 +44,7 @@
 #include "xmlStructure.h"
 #include "tools.h"
 #include "multiEvaluation.h"
+#include "distance.h"
 
 
 
