@@ -60,12 +60,15 @@ namespace TERCpp
 	MAX_LENGTH_SENTENCE=10;
 	S = new vector < vector < double > >(MAX_LENGTH_SENTENCE, std::vector<double>(MAX_LENGTH_SENTENCE,0.0));
 	P = new vector < vector < char > >(MAX_LENGTH_SENTENCE, std::vector<char>(MAX_LENGTH_SENTENCE,' '));
+	m_deep = false;
+	m_distance = NULL;
     }
 
     terCalc::~terCalc()
     {
 	delete(S);
 	delete(P);
+	delete(m_distance);
     }
 
     void terCalc::setCosts(param l_p)
@@ -217,6 +220,7 @@ namespace TERCpp
 //             }
 //         }
         S->at(0).at(0) = 0.0;
+// 	cerr << "REF "<< vectorToString(ref) << endl << "HYP "<< vectorToString(hyp) <<endl;
         for ( j = 0; j <= hyp_size; j++ )
         {
             last_best = current_best;
@@ -227,6 +231,11 @@ namespace TERCpp
             cur_last_good = -1;
             last_peak = cur_last_peak;
             cur_last_peak = 0;
+	    float l_distance = 0.0;
+	    float l_erreur = 1.0;
+// 	    cerr << m_deep << endl;
+// 	    cerr << "=========================" << endl;
+	    
             for ( i = first_good; i <= ref_size; i++ )
             {
                 if ( i > last_good )
@@ -248,9 +257,15 @@ namespace TERCpp
                 }
                 if ( ( i < ref_size ) && ( j < hyp_size ) )
                 {
-                    if ( ( int ) refSpans.size() ==  0 || ( int ) hypSpans.size() ==  0 || trouverIntersection ( refSpans.at ( i ), curHypSpans.at ( j ) ) )
+		    if (m_deep)
+		    {
+			l_distance = m_distance->getDistance(ref.at ( i ), hyp.at ( j ));
+			l_erreur = 1-l_distance; 
+// 			cerr << ref.at ( i ) << "\t" << hyp.at ( j ) << "\t" << l_distance << "\t" << l_erreur <<endl;
+		    }
+                    if ( ( int ) refSpans.size() ==  0 || ( int ) hypSpans.size() ==  0 || trouverIntersection ( refSpans.at ( i ), curHypSpans.at ( j ) ) || (m_deep && l_erreur < 0.5) )
                     {
-                        if ( ( int ) ( ref.at ( i ).compare ( hyp.at ( j ) ) ) == 0 )
+                        if ( ( int ) ( ref.at ( i ).compare ( hyp.at ( j ) ) ) == 0  || l_erreur < 0.1)
                         {
                             cost = match_cost + score;
                             if ( ( S->at(i+1).at(j+1) == -1 ) || ( cost < S->at(i+1).at(j+1) ) )
@@ -270,6 +285,10 @@ namespace TERCpp
                         else
                         {
                             cost = substitute_cost + score;
+			    if (m_deep)
+			    {
+				cost = l_erreur + score;
+			    }
                             if ( ( S->at(i+1).at(j+1) < 0 ) || ( cost < S->at(i+1).at(j+1) ) )
                             {
                                 S->at(i+1).at(j+1) = cost;
@@ -387,7 +406,39 @@ namespace TERCpp
 	to_return.averageWords = ref_size;
         if ( PRINT_DEBUG )
         {
-            cerr << "BEGIN DEBUG : terCalc::minimizeDistanceEdition : to_return :" << endl << to_return.toString() << endl << "END DEBUG" << endl;
+            cerr << "BEGIN DEBUG : terCalc::minimizeDistanceEdition : to_return :" << endl << to_return.toString() << endl ; 
+	    cerr << "P:" <<endl;
+	    i = 0;
+	    j = 0;
+	    while ( ( i < (int)ref.size() ) )
+	    {
+		cerr<< i<< "\t";
+		j = 0;
+		while ( ( j < (int)hyp.size() ))
+		{
+		    cerr << P->at(i).at(j)<< "\t";
+		    j++;
+		}
+		i++;
+		cerr << endl;
+	    }
+	    cerr << "S:" <<endl;
+	    i = 0;
+	    j = 0;
+	    while ( ( i < (int)ref.size() ) )
+	    {
+		cerr<< i<< "\t";
+		j = 0;
+		while ( ( j < (int)hyp.size() ))
+		{
+		    cerr << S->at(i).at(j)<< "\t";
+		    j++;
+		}
+		i++;
+		cerr << endl;
+	    }
+	    cerr << "END DEBUG" << endl;
+	    
         }
         return to_return;
 
@@ -1359,5 +1410,16 @@ namespace TERCpp
     {
         PRINT_DEBUG = b;
     }
-
+    void terCalc::setW2VModel(string filename)
+    {
+	m_distance = new word2vecdistance::distance(filename);
+    }
+    bool terCalc::getDeep()
+    {
+	return m_deep;
+    }
+    void terCalc::setDeep(bool l_b)
+    {
+	m_deep = l_b;
+    }
 }

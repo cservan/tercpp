@@ -70,6 +70,8 @@ struct param
     float insCost;
     float subCost;
     float shiftCost;
+    string W2VModel;
+    bool deep;
 };
 // param = { false, "","","","" };
 

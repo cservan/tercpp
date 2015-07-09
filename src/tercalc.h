@@ -34,6 +34,7 @@
 #include "terShift.h"
 #include "alignmentStruct.h"
 #include "bestShiftStruct.h"
+#include "distance.h"
 
 using namespace std;
 using namespace Tools;
@@ -65,6 +66,7 @@ namespace TERCpp
 	    int CALL_FIND_BSHIFT;
 	    int MAX_LENGTH_SENTENCE;
             bool PRINT_DEBUG;
+	    bool m_deep;
 
             // Utilisés dans minDistEdit et ils ne sont pas réajustés 
             vector < vector < double > > * S;
@@ -72,6 +74,7 @@ namespace TERCpp
             vector<vecInt> refSpans;
             vector<vecInt> hypSpans;
             int TAILLE_BEAM;
+	    word2vecdistance::distance * m_distance;
 
         public:
             int shift_cost;
@@ -86,6 +89,8 @@ namespace TERCpp
 //             size_t* hashVec ( vector<string> s );
             void setDebugMode ( bool b );
 	    void setCosts(param l_p);
+	    void setDeep(bool l_b);
+	    bool getDeep();
 //             int WERCalculation ( size_t * ref, size_t * hyp );
 //             int WERCalculation ( vector<string> ref, vector<string> hyp );
 //             int WERCalculation ( vector<int> ref, vector<int> hyp );
@@ -106,6 +111,7 @@ namespace TERCpp
             alignmentStruct permuter ( vector<string>& words, terShift& s );
             alignmentStruct permuter ( vector<string>& words, terShift* s );
             alignmentStruct permuter ( vector<string>& words, int start, int end, int newloc );
+	    void setW2VModel(string filename);
     };
 
 }

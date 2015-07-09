@@ -834,6 +834,8 @@ namespace Tools
 	to_return.delCost=p.delCost;
 	to_return.subCost=p.subCost;
 	to_return.shiftCost=p.shiftCost;
+	to_return.deep=p.deep;
+	to_return.W2VModel=p.W2VModel;
         return to_return;
     }
     string printParams ( param p )
@@ -860,6 +862,8 @@ namespace Tools
         s << "delCost = " << p.delCost << endl;
         s << "subCost = " << p.subCost << endl;
         s << "shiftCost = " << p.shiftCost << endl;
+        s << "deep = " << p.deep << endl;
+        s << "W2VModel = " << p.W2VModel << endl;
         return s.str();
 
     }

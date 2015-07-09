@@ -276,6 +276,11 @@ namespace TERCpp
             l_evalTER = new terCalc();
 	    l_evalTER->setDebugMode(evalParameters.debugMode);
 	    l_evalTER->setCosts(evalParameters);
+	    if (evalParameters.deep)
+	    {
+		  l_evalTER->setDeep(true);
+		  l_evalTER->setW2VModel(evalParameters.W2VModel);
+	    }
 // 	  cerr << "************************************************************************************************************************************************************************************** 2"<<endl;
 // 	  (*segHypIt).getSegId() ;
 // 	  cerr << "************************************************************************************************************************************************************************************** 3"<<endl;

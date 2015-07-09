@@ -80,6 +80,8 @@ void readCommandLineArguments ( unsigned int argc, char *argv[] , param & p)
     p.delCost=1.0;
     p.subCost=1.0;
     p.shiftCost=1.0;
+    p.W2VModel = "";
+    p.deep = false;
 
     string s ( "" );
     string infos ("");
@@ -128,6 +130,11 @@ void readCommandLineArguments ( unsigned int argc, char *argv[] , param & p)
         else if ( s.compare ( "-T" ) == 0 )
         {
             p.shiftCost = atof(infos.c_str());
+        }
+        else if ( s.compare ( "-w2v" ) == 0 )
+        {
+            p.W2VModel = infos;
+	    p.deep = true;
         }
         else if ( s.compare ( "-n" ) == 0 )
         {
