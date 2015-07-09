@@ -1414,6 +1414,10 @@ namespace TERCpp
     {
 	m_distance = new word2vecdistance::distance(filename);
     }
+    void terCalc::setW2VModel(word2vecdistance::distance* f_distance)
+    {
+	m_distance = f_distance;
+    }
     bool terCalc::getDeep()
     {
 	return m_deep;

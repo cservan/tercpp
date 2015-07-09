@@ -112,6 +112,7 @@ namespace TERCpp
             alignmentStruct permuter ( vector<string>& words, terShift* s );
             alignmentStruct permuter ( vector<string>& words, int start, int end, int newloc );
 	    void setW2VModel(string filename);
+	    void setW2VModel(word2vecdistance::distance * f_distance);
     };
 
 }

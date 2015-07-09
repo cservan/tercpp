@@ -28,7 +28,7 @@
 #include <string>
 #include "xmlStructure.h"
 #include "sgmlDocument.h"
-
+#include "distance.h"
 using namespace Tools;
 namespace TERCpp
 {
@@ -52,12 +52,14 @@ namespace TERCpp
             void launchSGMLEvaluation();
             void evaluate ( documentStructure & docStructReference, documentStructure & docStructhypothesis );
             string scoreTER ( vector<float> numEdits, vector<float> numWords );
+	    
         private:
             param evalParameters;
             multiTxtDocument referencesTxt;
             documentStructure hypothesisTxt;
 	    SGMLDocument referencesSGML;
             SGMLDocument hypothesisSGML;
+	    word2vecdistance::distance * m_distance;
 
 
     };

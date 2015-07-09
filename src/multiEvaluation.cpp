@@ -67,6 +67,10 @@ namespace TERCpp
 	evalParameters.matchCost = 0.0;
 	
         evalParameters = Tools::copyParam ( p );
+	if (evalParameters.deep)
+	{
+	    m_distance = new word2vecdistance::distance(evalParameters.W2VModel);
+	}
 // 	referencesTxt=new multiTxtDocument();
 // 	hypothesisTxt=new documentStructure();
     }
@@ -269,6 +273,9 @@ namespace TERCpp
 	vector<string> l_vref;
 	terAlignment l_result;
 	float l_seuil=0.6;
+	
+	
+	
         for ( vector<segmentStructure>::iterator segHypIt = docStructhypothesis.getSegments()->begin(); segHypIt != docStructhypothesis.getSegments()->end(); segHypIt++ )
         {
 // 	  cerr << "************************************************************************************************************************************************************************************** 1 " << (docStructhypothesis.getSegments()->at(0)).toString()<<endl;
@@ -279,7 +286,7 @@ namespace TERCpp
 	    if (evalParameters.deep)
 	    {
 		  l_evalTER->setDeep(true);
-		  l_evalTER->setW2VModel(evalParameters.W2VModel);
+		  l_evalTER->setW2VModel(m_distance);
 	    }
 // 	  cerr << "************************************************************************************************************************************************************************************** 2"<<endl;
 // 	  (*segHypIt).getSegId() ;
