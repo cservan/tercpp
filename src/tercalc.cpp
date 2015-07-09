@@ -68,7 +68,7 @@ namespace TERCpp
     {
 	delete(S);
 	delete(P);
-	delete(m_distance);
+// 	delete(m_distance);
     }
 
     void terCalc::setCosts(param l_p)
