@@ -256,6 +256,8 @@ namespace TERCpp
 	if (docStructReference.getSize() != docStructhypothesis.getSize())
 	{
 		cerr << "ERROR :  multiEvaluation::evaluate size of hypothesis and size of reference differ : " << endl << "Hypothesis size: " << docStructhypothesis.getSize() << endl << "Reference size: "<< docStructReference.getSize() <<endl << "Exit Here !!!" <<endl;
+		cerr << "Hyp name : " << docStructhypothesis.getFileName() <<endl;
+		cerr << "Ref name : " << docStructReference.getFileName() <<endl;
 		exit(1);
 	}
 	if (evalParameters.debugMode)

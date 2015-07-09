@@ -125,6 +125,7 @@ namespace TERCpp
         ifstream fichierLoad ( fileName.c_str(), ios::in );
         string line="";
         documentStructure l_doc;
+	l_doc.setFileName(fileName);
         if ( fichierLoad )
         {
             int l_ids = 1;

@@ -39,10 +39,13 @@ namespace TERCpp
     class documentStructure
     {
         private:
+	    string m_fileName;
             string docId;
             string sysId;
             vector<segmentStructure> seg;
         public:
+	    string getFileName();
+	    void setFileName(string f_fileName);
             string getDocId();
             string getSysId();
             vector<segmentStructure>* getSegments();

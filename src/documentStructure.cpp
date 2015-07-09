@@ -32,8 +32,9 @@ namespace TERCpp
 // 	s << "alignment" << vectorToString(alignment)<<endl;
 // 	s << "afterShift" << vectorToString(alignment)<<endl;
 //         s << "Nothing to be printed" << endl;
-	s << "\tDoc Id: "<< docId << endl;
-	s << "\tSys Id: "<< sysId << endl;
+	s << "\tFileName: "<< m_fileName << endl;
+	s << "\tDoc Id  : "<< docId << endl;
+	s << "\tSys Id  : "<< sysId << endl;
 	int i=0;
 	for (i=0; i<(int)seg.size(); i++)
 	{
@@ -45,6 +46,14 @@ namespace TERCpp
     string documentStructure::getDocId()
     {
         return docId;
+    }
+    string documentStructure::getFileName()
+    {
+        return m_fileName;
+    }
+    void documentStructure::setFileName(string f_fileName)
+    {        
+        m_fileName = f_fileName;
     }
 
     vector< segmentStructure >* documentStructure::getSegments()
