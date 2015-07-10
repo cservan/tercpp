@@ -136,6 +136,7 @@ namespace TERCpp
         int incDocRefences = 0;
         stringstream l_stream;
         vector<float> editsResults;
+        vector<float> deepEditsResults;
         vector<float> wordsResults;
         int tot_ins = 0;
         int tot_del = 0;
@@ -143,6 +144,7 @@ namespace TERCpp
         int tot_sft = 0;
         int tot_wsf = 0;
         float tot_err = 0;
+        float tot_deeperr = 0;
         float tot_wds = 0;
 //         vector<stringInfosHasher> setOfHypothesis = hashHypothesis.getHashMap();
 	ofstream outputAlignments;
@@ -155,14 +157,28 @@ namespace TERCpp
         char outputCharBuffer[200];
         if (evalParameters.WER)
 	{
-	    sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "NumEr", "AvNumWd", "WER");
+	    if (evalParameters.deep)
+	    {
+		sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "NumEr", "D-NumEr", "AvNumWd", "WER", "D-WER");
+	    }
+	    else
+	    {
+		sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "NumEr", "AvNumWd", "WER");
+	    }
 	}
 	else
 	{
-	    sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "NumEr", "AvNumWd", "TER");
+	    if (evalParameters.deep)
+	    {
+		sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "NumEr", "D-NumEr", "AvNumWd", "TER", "D-TER");
+	    }
+	    else
+	    {
+		sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "NumEr", "AvNumWd", "TER");
+	    }
 	}
         outputSum << outputCharBuffer << endl;
-        outputSum << "-------------------------------------------------------------------------------------" << endl;
+        outputSum << "--------------------------------------------------------------------------------------------------------------" << endl;
 	vector <string> referenceList =referencesTxt.getListDocuments();
 	for (vector <string>::iterator referenceListIter=referenceList.begin(); referenceListIter!=referenceList.end(); referenceListIter++)
 	{
@@ -183,6 +199,7 @@ namespace TERCpp
 	    string bestDocId = segHypIt->getBestDocId();
 	    string l_id=segHypIt->getSegId();
             editsResults.push_back(l_result.numEdits);
+            deepEditsResults.push_back(l_result.deepNumEdits);
             wordsResults.push_back(l_result.averageWords);
             l_result.scoreDetails();
             tot_ins += l_result.numIns;
@@ -191,19 +208,20 @@ namespace TERCpp
             tot_sft += l_result.numSft;
             tot_wsf += l_result.numWsf;
             tot_err += l_result.numEdits;
+            tot_deeperr += l_result.deepNumEdits;
             tot_wds += l_result.averageWords;
 
             char outputCharBufferTmp[200];
-		if (evalParameters.deep)
-		{
-		    sprintf(outputCharBufferTmp, "%19s | %4d | %4d | %4d | %4d | %4d | %6.1f | %8.3f | %8.3f",(l_id+":"+bestDocId).c_str(), l_result.numIns, l_result.numDel, l_result.numSub, l_result.numSft, l_result.numWsf, l_result.deepNumEdits, l_result.averageWords, l_result.deepScoreAv()*100.0);
-		    outputSum<< outputCharBufferTmp<<endl;
-		}
-		else
-		{
-		    sprintf(outputCharBufferTmp, "%19s | %4d | %4d | %4d | %4d | %4d | %6.1f | %8.3f | %8.3f",(l_id+":"+bestDocId).c_str(), l_result.numIns, l_result.numDel, l_result.numSub, l_result.numSft, l_result.numWsf, l_result.numEdits, l_result.averageWords, l_result.scoreAv()*100.0);
-		    outputSum<< outputCharBufferTmp<<endl;
-		}
+	    if (evalParameters.deep)
+	    {
+		sprintf(outputCharBufferTmp, "%19s | %4d | %4d | %4d | %4d | %4d | %6.1f | %8.3f | %8.3f | %8.3f | %8.3f",(l_id+":"+bestDocId).c_str(), l_result.numIns, l_result.numDel, l_result.numSub, l_result.numSft, l_result.numWsf, l_result.numEdits, l_result.deepNumEdits, l_result.averageWords, l_result.scoreAv()*100.0, l_result.deepScoreAv()*100.0);
+		outputSum<< outputCharBufferTmp<<endl;
+	    }
+	    else
+	    {
+		sprintf(outputCharBufferTmp, "%19s | %4d | %4d | %4d | %4d | %4d | %6.1f | %8.3f | %8.3f",(l_id+":"+bestDocId).c_str(), l_result.numIns, l_result.numDel, l_result.numSub, l_result.numSft, l_result.numWsf, l_result.numEdits, l_result.averageWords, l_result.scoreAv()*100.0);
+		outputSum<< outputCharBufferTmp<<endl;
+	    }
 
             if (evalParameters.debugMode)
             {
@@ -254,14 +272,31 @@ namespace TERCpp
 	if (evalParameters.WER)
 	{
 	    cout << "Total WER: " << scoreTER ( editsResults, wordsResults );
+	    if (evalParameters.deep)
+	    {
+		cout << "\tTotal D-WER: " << scoreTER ( deepEditsResults, wordsResults );
+	    }
+	    cout << endl;
 	}
 	else
 	{
 	    cout << "Total TER: " << scoreTER ( editsResults, wordsResults );
+	    if (evalParameters.deep)
+	    {
+		cout << "\tTotal D-TER: " << scoreTER ( deepEditsResults, wordsResults );
+	    }
+	    cout << endl;
 	}
 	char outputCharBufferTmp[200];
-        outputSum << "-------------------------------------------------------------------------------------" << endl;
-        sprintf ( outputCharBufferTmp, "%19s | %4d | %4d | %4d | %4d | %4d | %6.1f | %8.3f | %8.3f", "TOTAL", tot_ins, tot_del, tot_sub, tot_sft, tot_wsf, tot_err, tot_wds, tot_err*100.0 / tot_wds );
+        outputSum << "--------------------------------------------------------------------------------------------------------------" << endl;
+	if (evalParameters.deep)
+	{
+	    sprintf ( outputCharBufferTmp, "%19s | %4d | %4d | %4d | %4d | %4d | %6.1f | %8.3f | %8.3f | %8.3f | %8.3f", "TOTAL", tot_ins, tot_del, tot_sub, tot_sft, tot_wsf, tot_err, tot_deeperr, tot_wds, tot_err*100.0 / tot_wds , tot_deeperr*100.0 / tot_wds );
+	}
+	else
+	{
+	    sprintf ( outputCharBufferTmp, "%19s | %4d | %4d | %4d | %4d | %4d | %6.1f | %8.3f | %8.3f", "TOTAL", tot_ins, tot_del, tot_sub, tot_sft, tot_wsf, tot_err, tot_wds, tot_err*100.0 / tot_wds );
+	}
         outputSum << outputCharBufferTmp << endl;
         outputSum.close();
 
@@ -412,17 +447,17 @@ namespace TERCpp
 
         if ( ( wordsCount <= 0.0 ) && ( editsCount > 0.0 ) )
         {
-            output <<  1.0 << " (" << editsCount << "/" << wordsCount << ")" << endl;
+            output <<  1.0 << " (" << editsCount << "/" << wordsCount << ")";
         }
         else
             if ( wordsCount <= 0.0 )
             {
-                output <<  0.0 << " (" << editsCount << "/" << wordsCount << ")" << endl;
+                output <<  0.0 << " (" << editsCount << "/" << wordsCount << ")" ;
             }
             else
             {
 //       return editsCount/wordsCount;
-                output <<  editsCount / wordsCount << " (" << editsCount << "/" << wordsCount << ")" << endl;
+                output <<  editsCount / wordsCount << " (" << editsCount << "/" << wordsCount << ")";
             }
         return output.str();
     }
@@ -453,6 +488,7 @@ namespace TERCpp
         int incDocHypothesis = 0;
         stringstream l_stream;
         vector<float> editsResults;
+        vector<float> deepEditsResults;
         vector<float> wordsResults;
         int tot_ins = 0;
         int tot_del = 0;
@@ -460,6 +496,7 @@ namespace TERCpp
         int tot_sft = 0;
         int tot_wsf = 0;
         float tot_err = 0;
+        float tot_deeperr = 0;
         float tot_wds = 0;
 //         vector<stringInfosHasher> setOfHypothesis = hashHypothesis.getHashMap();
         ofstream outputSum ( ( evalParameters.outputFileName + ".output.sum.log" ).c_str() );
@@ -470,17 +507,30 @@ namespace TERCpp
 	{
 	    outputAlignments.open( ( evalParameters.outputFileName + ".alignments" ).c_str() );
 	}
-
-	if (evalParameters.WER)
+        if (evalParameters.WER)
 	{
-	    sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "NumEr", "AvNumWd", "WER");
+	    if (evalParameters.deep)
+	    {
+		sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "NumEr", "D-NumEr", "AvNumWd", "WER", "D-WER");
+	    }
+	    else
+	    {
+		sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "NumEr", "AvNumWd", "WER");
+	    }
 	}
 	else
 	{
-	    sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "NumEr", "AvNumWd", "TER");
+	    if (evalParameters.deep)
+	    {
+		sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "NumEr", "D-NumEr", "AvNumWd", "TER", "D-TER");
+	    }
+	    else
+	    {
+		sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "NumEr", "AvNumWd", "TER");
+	    }
 	}
         outputSum << outputCharBuffer << endl;
-        outputSum << "-------------------------------------------------------------------------------------" << endl;
+        outputSum << "--------------------------------------------------------------------------------------------------------------" << endl;
         for ( incDocHypothesis = 0; incDocHypothesis < hypothesisSGML.getSize();incDocHypothesis++ )
         {
 	    documentStructure l_hypothesis = (*(hypothesisSGML.getDocument ( incDocHypothesis)));
@@ -500,6 +550,7 @@ namespace TERCpp
 		string bestDocId = segHypIt->getBestDocId();
 		string l_id=segHypIt->getSegId();
 		editsResults.push_back(l_result.numEdits);
+		deepEditsResults.push_back(l_result.deepNumEdits);
 		wordsResults.push_back(l_result.averageWords);
 		l_result.scoreDetails();
 		tot_ins += l_result.numIns;
@@ -508,12 +559,13 @@ namespace TERCpp
 		tot_sft += l_result.numSft;
 		tot_wsf += l_result.numWsf;
 		tot_err += l_result.numEdits;
+		tot_deeperr += l_result.deepNumEdits;
 		tot_wds += l_result.averageWords;
 
 		char outputCharBufferTmp[200];
 		if (evalParameters.deep)
 		{
-		    sprintf(outputCharBufferTmp, "%19s | %4d | %4d | %4d | %4d | %4d | %6.1f | %8.3f | %8.3f",(l_id+":"+bestDocId).c_str(), l_result.numIns, l_result.numDel, l_result.numSub, l_result.numSft, l_result.numWsf, l_result.deepNumEdits, l_result.averageWords, l_result.deepScoreAv()*100.0);
+		    sprintf(outputCharBufferTmp, "%19s | %4d | %4d | %4d | %4d | %4d | %6.1f | %8.3f | %8.3f | %8.3f | %8.3f",(l_id+":"+bestDocId).c_str(), l_result.numIns, l_result.numDel, l_result.numSub, l_result.numSft, l_result.numWsf, l_result.numEdits, l_result.deepNumEdits, l_result.averageWords, l_result.scoreAv()*100.0, l_result.deepScoreAv()*100.0);
 		    outputSum<< outputCharBufferTmp<<endl;
 		}
 		else
@@ -592,14 +644,31 @@ namespace TERCpp
 	if (evalParameters.WER)
 	{
 	    cout << "Total WER: " << scoreTER ( editsResults, wordsResults );
+	    if (evalParameters.deep)
+	    {
+		cout << "\tTotal D-WER: " << scoreTER ( deepEditsResults, wordsResults );
+	    }
+	    cout << endl;
 	}
 	else
 	{
 	    cout << "Total TER: " << scoreTER ( editsResults, wordsResults );
+	    if (evalParameters.deep)
+	    {
+		cout << "\tTotal D-TER: " << scoreTER ( deepEditsResults, wordsResults );
+	    }
+	    cout << endl;
 	}
 	char outputCharBufferTmp[200];
-        outputSum << "-------------------------------------------------------------------------------------" << endl;
-        sprintf ( outputCharBufferTmp, "%19s | %4d | %4d | %4d | %4d | %4d | %6.1f | %8.3f | %8.3f", "TOTAL", tot_ins, tot_del, tot_sub, tot_sft, tot_wsf, tot_err, tot_wds, tot_err*100.0 / tot_wds );
+        outputSum << "--------------------------------------------------------------------------------------------------------------" << endl;
+	if (evalParameters.deep)
+	{
+	    sprintf ( outputCharBufferTmp, "%19s | %4d | %4d | %4d | %4d | %4d | %6.1f | %8.3f | %8.3f | %8.3f | %8.3f", "TOTAL", tot_ins, tot_del, tot_sub, tot_sft, tot_wsf, tot_err, tot_deeperr, tot_wds, tot_err*100.0 / tot_wds , tot_deeperr*100.0 / tot_wds );
+	}
+	else
+	{
+	    sprintf ( outputCharBufferTmp, "%19s | %4d | %4d | %4d | %4d | %4d | %6.1f | %8.3f | %8.3f", "TOTAL", tot_ins, tot_del, tot_sub, tot_sft, tot_wsf, tot_err, tot_wds, tot_err*100.0 / tot_wds );
+	}
         outputSum << outputCharBufferTmp << endl;
         outputSum.close();
 

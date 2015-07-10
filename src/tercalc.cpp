@@ -202,7 +202,7 @@ namespace TERCpp
 	int hyp_size=0;
 	hyp_size=( int ) hyp.size();
         float cost, icost, dcost;
-        float score;
+        float score, deepscore;
 	delete(S);
 	delete(D);
 	delete(P);
@@ -252,6 +252,7 @@ namespace TERCpp
                     continue;
                 }
                 score = S->at(i).at(j);
+                deepscore = D->at(i).at(j);
                 if ( ( j < hyp_size ) && ( score > last_best + TAILLE_BEAM ) )
                 {
                     continue;
@@ -262,22 +263,22 @@ namespace TERCpp
                 }
                 if ( ( i < ref_size ) && ( j < hyp_size ) )
                 {
-		    if (m_deep)
-		    {
-			l_distance = m_distance->getDistance(ref.at ( i ), hyp.at ( j ));
-			l_erreur = 1-l_distance; 
-// 			cerr << ref.at ( i ) << "\t" << hyp.at ( j ) << "\t" << l_distance << "\t" << l_erreur <<endl;
-		    }
 //                     if ( ( int ) refSpans.size() ==  0 || ( int ) hypSpans.size() ==  0 || trouverIntersection ( refSpans.at ( i ), curHypSpans.at ( j ) ) || (m_deep && l_erreur < 0.5) )
                     if ( ( int ) refSpans.size() ==  0 || ( int ) hypSpans.size() ==  0 || trouverIntersection ( refSpans.at ( i ), curHypSpans.at ( j ) ) )
                     {
+			if (m_deep)
+			{
+			    l_distance = m_distance->getDistance(ref.at ( i ), hyp.at ( j ));
+			    l_erreur = 1-l_distance; 
+    // 			cerr << ref.at ( i ) << "\t" << hyp.at ( j ) << "\t" << l_distance << "\t" << l_erreur <<endl;
+			}
                         if ( ( int ) ( ref.at ( i ).compare ( hyp.at ( j ) ) ) == 0 )
                         {
                             cost = match_cost + score;
                             if ( ( S->at(i+1).at(j+1) == -1 ) || ( cost < S->at(i+1).at(j+1) ) )
                             {
 				S->at(i+1).at(j+1) = cost;
-				D->at(i+1).at(j+1) = cost;
+				D->at(i+1).at(j+1) = match_cost + deepscore;
 				P->at(i+1).at(j+1) = 'A';
                             }
                             if ( cost < current_best )
@@ -295,11 +296,7 @@ namespace TERCpp
                             if ( ( S->at(i+1).at(j+1) < 0 ) || ( cost < S->at(i+1).at(j+1) ) )
                             {
                                 S->at(i+1).at(j+1) = cost;
-				if (m_deep)
-				{
-				    cost = l_erreur + score;
-				}
-                                D->at(i+1).at(j+1) = cost;
+                                D->at(i+1).at(j+1) = deepscore + l_erreur ;
 				P->at(i+1).at(j+1) = 'S';
                                 if ( cost < current_best )
                                 {
@@ -320,7 +317,7 @@ namespace TERCpp
                     if ( ( S->at(i).at(j+1) < 0 ) || ( S->at(i).at(j+1) > icost ) )
                     {
                         S->at(i).at(j+1) = icost;
-                        D->at(i).at(j+1) = icost;
+                        D->at(i).at(j+1) = deepscore + insert_cost;
 			P->at(i).at(j+1) = 'I';
                         if ( ( cur_last_peak <  i ) && ( current_best ==  icost ) )
                         {
@@ -334,7 +331,7 @@ namespace TERCpp
                     if ( ( S->at(i+1).at(j) < 0.0 ) || ( S->at(i+1).at(j) > dcost ) )
                     {
                         S->at(i+1).at(j) = dcost;
-                        D->at(i+1).at(j) = dcost;
+                        D->at(i+1).at(j) = deepscore + delete_cost;
                         P->at(i+1).at(j) = 'D';
                         if ( i >= last_good )
                         {
@@ -412,12 +409,15 @@ namespace TERCpp
         to_return.alignment = path;
         to_return.numEdits = S->at(ref_size).at(hyp_size);
         to_return.deepNumEdits = D->at(ref_size).at(hyp_size);
+// 	cerr << to_return.numEdits  << " "<< to_return.deepNumEdits << endl;
 	to_return.hyp = hyp;
 	to_return.ref = ref;
 	to_return.averageWords = ref_size;
         if ( PRINT_DEBUG )
         {
             cerr << "BEGIN DEBUG : terCalc::minimizeDistanceEdition : to_return :" << endl << to_return.toString() << endl ; 
+	    cerr << "NumEdits:" << to_return.numEdits <<endl;
+	    cerr << "DeepNumEdits:" << to_return.deepNumEdits <<endl;
 	    cerr << "P:" <<endl;
 	    i = 0;
 	    j = 0;
@@ -448,6 +448,21 @@ namespace TERCpp
 		i++;
 		cerr << endl;
 	    }
+	    cerr << "D:" <<endl;
+	    i = 0;
+	    j = 0;
+	    while ( ( i < (int)ref.size() ) )
+	    {
+		cerr<< i<< "\t";
+		j = 0;
+		while ( ( j < (int)hyp.size() ))
+		{
+		    cerr << D->at(i).at(j)<< "\t";
+		    j++;
+		}
+		i++;
+		cerr << endl;
+	    }
 	    cerr << "END DEBUG" << endl;
 	    
         }
@@ -471,7 +486,7 @@ namespace TERCpp
 	int hyp_size=0;
 	hyp_size=( int ) hyp.size();
         float cost, icost, dcost;
-        float score;
+        float score, deepscore;
 	delete(S);
 	delete(D);
 	delete(P);
@@ -502,6 +517,8 @@ namespace TERCpp
             cur_last_good = -1;
             last_peak = cur_last_peak;
             cur_last_peak = 0;
+	    float l_distance = 0.0;
+	    float l_erreur = 1.0;
             for ( i = first_good; i <= ref_size; i++ )
             {
                 if ( i > last_good )
@@ -513,6 +530,7 @@ namespace TERCpp
                     continue;
                 }
                 score = S->at(i).at(j);
+                deepscore = D->at(i).at(j);
                 if ( ( j < hyp_size ) && ( score > last_best + TAILLE_BEAM ) )
                 {
                     continue;
@@ -525,14 +543,20 @@ namespace TERCpp
                 {
                     if ( ( int ) refSpans.size() ==  0 || ( int ) hypSpans.size() ==  0 || trouverIntersection ( refSpans.at ( i ), curHypSpans.at ( j ) ) )
                     {
+			if (m_deep)
+			{
+			    l_distance = m_distance->getDistance(ref.at ( i ), hyp.at ( j ));
+			    l_erreur = 1-l_distance; 
+    // 			cerr << ref.at ( i ) << "\t" << hyp.at ( j ) << "\t" << l_distance << "\t" << l_erreur <<endl;
+			}
                         if ( ( int ) ( ref.at ( i ).compare ( hyp.at ( j ) ) ) == 0 )
                         {
                             cost = match_cost + score;
                             if ( ( S->at(i+1).at(j+1) == -1 ) || ( cost < S->at(i+1).at(j+1) ) )
                             {
-                                S->at(i+1).at(j+1) = cost;
-                                D->at(i+1).at(j+1) = cost;
-                                P->at(i+1).at(j+1) = 'A';
+				S->at(i+1).at(j+1) = cost;
+				D->at(i+1).at(j+1) = match_cost + deepscore;
+				P->at(i+1).at(j+1) = 'A';
                             }
                             if ( cost < current_best )
                             {
@@ -549,7 +573,7 @@ namespace TERCpp
                             if ( ( S->at(i+1).at(j+1) < 0 ) || ( cost < S->at(i+1).at(j+1) ) )
                             {
                                 S->at(i+1).at(j+1) = cost;
-                                D->at(i+1).at(j+1) = cost;
+                                D->at(i+1).at(j+1) = deepscore + l_erreur ;
                                 P->at(i+1).at(j+1) = 'S';
                                 if ( cost < current_best )
                                 {
@@ -570,7 +594,7 @@ namespace TERCpp
                     if ( ( S->at(i).at(j+1) < 0 ) || ( S->at(i).at(j+1) > icost ) )
                     {
                         S->at(i).at(j+1) = icost;
-                        D->at(i).at(j+1) = icost;
+                        D->at(i).at(j+1) = deepscore + insert_cost;;
                         P->at(i).at(j+1) = 'I';
                         if ( ( cur_last_peak <  i ) && ( current_best ==  icost ) )
                         {
@@ -584,7 +608,7 @@ namespace TERCpp
                     if ( ( S->at(i+1).at(j) < 0.0 ) || ( S->at(i+1).at(j) > dcost ) )
                     {
                         S->at(i+1).at(j) = dcost;
-                        D->at(i+1).at(j) = dcost;
+                        D->at(i+1).at(j) = deepscore + delete_cost;
                         P->at(i+1).at(j) = 'D';
                         if ( i >= last_good )
                         {
@@ -662,6 +686,7 @@ namespace TERCpp
         to_return->alignment = path;
         to_return->numEdits = S->at(ref_size).at(hyp_size);
         to_return->deepNumEdits = D->at(ref_size).at(hyp_size);
+// 	cerr << to_return->numEdits  << " "<< to_return->deepNumEdits << endl;
 	to_return->hyp = hyp;
 	to_return->ref = ref;
 	to_return->averageWords = ref_size;
@@ -683,6 +708,7 @@ namespace TERCpp
         cur_align.ref = ref;
         cur_align.aftershift = hyp;
         float edits = 0;
+        float deepedits = 0;
 //         int numshifts = 0;
 
         vector<terShift> * allshifts=new vector<terShift>(0);
@@ -706,6 +732,7 @@ namespace TERCpp
             terShift bestShift = (*(returns->m_best_shift));
             cur_align = (*(returns->m_best_align));
             edits += bestShift.cost;
+	    deepedits += bestShift.cost;
             bestShift.alignment = cur_align.alignment;
             bestShift.aftershift = cur_align.aftershift;
             allshifts->push_back ( bestShift );
@@ -721,6 +748,7 @@ namespace TERCpp
         to_return = cur_align;
         to_return.allshifts = (*(allshifts));
         to_return.numEdits += edits;
+	to_return.deepNumEdits += deepedits;
         NBR_SEGS_EVALUATED++;
         return to_return;
     }
