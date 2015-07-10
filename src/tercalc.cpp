@@ -57,7 +57,7 @@ namespace TERCpp
 	CALL_TER_ALIGN=0;
 	CALL_CALC_PERMUT=0;
 	CALL_FIND_BSHIFT=0;
-	MAX_LENGTH_SENTENCE=10;
+	MAX_LENGTH_SENTENCE=1;
 	S = new vector < vector < float > >(MAX_LENGTH_SENTENCE, std::vector<float>(MAX_LENGTH_SENTENCE,0.0));
 	D = new vector < vector < float > >(MAX_LENGTH_SENTENCE, std::vector<float>(MAX_LENGTH_SENTENCE,0.0));
 	P = new vector < vector < char > >(MAX_LENGTH_SENTENCE, std::vector<char>(MAX_LENGTH_SENTENCE,' '));
