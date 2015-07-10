@@ -60,7 +60,7 @@ namespace TERCpp
             vector<string> aftershift; // for pra_more output
             // This is used to store the cost of a shift, so we don't have to
             // calculate it multiple times.
-            double cost;
+            float cost;
 	    void set(terShift l_terShift);
 	    void set(terShift *l_terShift);
 	    void erase();

@@ -58,7 +58,8 @@ namespace TERCpp
 	CALL_CALC_PERMUT=0;
 	CALL_FIND_BSHIFT=0;
 	MAX_LENGTH_SENTENCE=10;
-	S = new vector < vector < double > >(MAX_LENGTH_SENTENCE, std::vector<double>(MAX_LENGTH_SENTENCE,0.0));
+	S = new vector < vector < float > >(MAX_LENGTH_SENTENCE, std::vector<float>(MAX_LENGTH_SENTENCE,0.0));
+	D = new vector < vector < float > >(MAX_LENGTH_SENTENCE, std::vector<float>(MAX_LENGTH_SENTENCE,0.0));
 	P = new vector < vector < char > >(MAX_LENGTH_SENTENCE, std::vector<char>(MAX_LENGTH_SENTENCE,' '));
 	m_deep = false;
 	m_distance = NULL;
@@ -67,6 +68,7 @@ namespace TERCpp
     terCalc::~terCalc()
     {
 	delete(S);
+	delete(D);
 	delete(P);
 // 	delete(m_distance);
     }
@@ -185,8 +187,8 @@ namespace TERCpp
 
     terAlignment terCalc::minimizeDistanceEdition ( vector< string >& hyp, vector< string >& ref, vector< vecInt >& curHypSpans )
     {
-        double current_best = infinite;
-        double last_best = infinite;
+        float current_best = infinite;
+        float last_best = infinite;
         int first_good = 0;
         int current_first_good = 0;
         int last_good = -1;
@@ -199,11 +201,13 @@ namespace TERCpp
 	ref_size=( int ) ref.size();
 	int hyp_size=0;
 	hyp_size=( int ) hyp.size();
-        double cost, icost, dcost;
-        double score;
-		delete(S);
-		delete(P);
-	S = new vector < vector < double > >(ref_size+1, std::vector<double>(hyp_size+1,-1.0));
+        float cost, icost, dcost;
+        float score;
+	delete(S);
+	delete(D);
+	delete(P);
+	S = new vector < vector < float > >(ref_size+1, std::vector<float>(hyp_size+1,-1.0));
+	D = new vector < vector < float > >(ref_size+1, std::vector<float>(hyp_size+1,-1.0));
 	P = new vector < vector < char > >(ref_size+1, std::vector<char>(hyp_size+1,'0'));
 
 
@@ -220,6 +224,7 @@ namespace TERCpp
 //             }
 //         }
         S->at(0).at(0) = 0.0;
+        D->at(0).at(0) = 0.0;
 // 	cerr << "REF "<< vectorToString(ref) << endl << "HYP "<< vectorToString(hyp) <<endl;
         for ( j = 0; j <= hyp_size; j++ )
         {
@@ -263,15 +268,17 @@ namespace TERCpp
 			l_erreur = 1-l_distance; 
 // 			cerr << ref.at ( i ) << "\t" << hyp.at ( j ) << "\t" << l_distance << "\t" << l_erreur <<endl;
 		    }
-                    if ( ( int ) refSpans.size() ==  0 || ( int ) hypSpans.size() ==  0 || trouverIntersection ( refSpans.at ( i ), curHypSpans.at ( j ) ) || (m_deep && l_erreur < 0.5) )
+//                     if ( ( int ) refSpans.size() ==  0 || ( int ) hypSpans.size() ==  0 || trouverIntersection ( refSpans.at ( i ), curHypSpans.at ( j ) ) || (m_deep && l_erreur < 0.5) )
+                    if ( ( int ) refSpans.size() ==  0 || ( int ) hypSpans.size() ==  0 || trouverIntersection ( refSpans.at ( i ), curHypSpans.at ( j ) ) )
                     {
-                        if ( ( int ) ( ref.at ( i ).compare ( hyp.at ( j ) ) ) == 0  || l_erreur < 0.1)
+                        if ( ( int ) ( ref.at ( i ).compare ( hyp.at ( j ) ) ) == 0 )
                         {
                             cost = match_cost + score;
                             if ( ( S->at(i+1).at(j+1) == -1 ) || ( cost < S->at(i+1).at(j+1) ) )
                             {
-                                S->at(i+1).at(j+1) = cost;
-                               P->at(i+1).at(j+1) = 'A';
+				S->at(i+1).at(j+1) = cost;
+				D->at(i+1).at(j+1) = cost;
+				P->at(i+1).at(j+1) = 'A';
                             }
                             if ( cost < current_best )
                             {
@@ -285,14 +292,15 @@ namespace TERCpp
                         else
                         {
                             cost = substitute_cost + score;
-			    if (m_deep)
-			    {
-				cost = l_erreur + score;
-			    }
                             if ( ( S->at(i+1).at(j+1) < 0 ) || ( cost < S->at(i+1).at(j+1) ) )
                             {
                                 S->at(i+1).at(j+1) = cost;
-                               P->at(i+1).at(j+1) = 'S';
+				if (m_deep)
+				{
+				    cost = l_erreur + score;
+				}
+                                D->at(i+1).at(j+1) = cost;
+				P->at(i+1).at(j+1) = 'S';
                                 if ( cost < current_best )
                                 {
                                     current_best = cost;
@@ -312,7 +320,8 @@ namespace TERCpp
                     if ( ( S->at(i).at(j+1) < 0 ) || ( S->at(i).at(j+1) > icost ) )
                     {
                         S->at(i).at(j+1) = icost;
-                       P->at(i).at(j+1) = 'I';
+                        D->at(i).at(j+1) = icost;
+			P->at(i).at(j+1) = 'I';
                         if ( ( cur_last_peak <  i ) && ( current_best ==  icost ) )
                         {
                             cur_last_peak = i;
@@ -325,6 +334,7 @@ namespace TERCpp
                     if ( ( S->at(i+1).at(j) < 0.0 ) || ( S->at(i+1).at(j) > dcost ) )
                     {
                         S->at(i+1).at(j) = dcost;
+                        D->at(i+1).at(j) = dcost;
                         P->at(i+1).at(j) = 'D';
                         if ( i >= last_good )
                         {
@@ -401,6 +411,7 @@ namespace TERCpp
         to_return.numWords = ref_size;
         to_return.alignment = path;
         to_return.numEdits = S->at(ref_size).at(hyp_size);
+        to_return.deepNumEdits = D->at(ref_size).at(hyp_size);
 	to_return.hyp = hyp;
 	to_return.ref = ref;
 	to_return.averageWords = ref_size;
@@ -445,8 +456,8 @@ namespace TERCpp
     }
     void terCalc::minimizeDistanceEdition ( vector< string >& hyp, vector< string >& ref, vector< vecInt >& curHypSpans, terAlignment* to_return )
     {
-        double current_best = infinite;
-        double last_best = infinite;
+        float current_best = infinite;
+        float last_best = infinite;
         int first_good = 0;
         int current_first_good = 0;
         int last_good = -1;
@@ -459,11 +470,13 @@ namespace TERCpp
 	ref_size=( int ) ref.size();
 	int hyp_size=0;
 	hyp_size=( int ) hyp.size();
-        double cost, icost, dcost;
-        double score;
-		delete(S);
-		delete(P);
-	S = new vector < vector < double > >(ref_size+1, std::vector<double>(hyp_size+1,-1.0));
+        float cost, icost, dcost;
+        float score;
+	delete(S);
+	delete(D);
+	delete(P);
+	S = new vector < vector < float > >(ref_size+1, std::vector<float>(hyp_size+1,-1.0));
+	D = new vector < vector < float > >(ref_size+1, std::vector<float>(hyp_size+1,-1.0));
 	P = new vector < vector < char > >(ref_size+1, std::vector<char>(hyp_size+1,'0'));
 	
         NBR_BS_APPELS++;
@@ -478,6 +491,7 @@ namespace TERCpp
 //             }
 //         }
         S->at(0).at(0) = 0.0;
+        D->at(0).at(0) = 0.0;
         for ( j = 0; j <= hyp_size; j++ )
         {
             last_best = current_best;
@@ -517,6 +531,7 @@ namespace TERCpp
                             if ( ( S->at(i+1).at(j+1) == -1 ) || ( cost < S->at(i+1).at(j+1) ) )
                             {
                                 S->at(i+1).at(j+1) = cost;
+                                D->at(i+1).at(j+1) = cost;
                                 P->at(i+1).at(j+1) = 'A';
                             }
                             if ( cost < current_best )
@@ -534,6 +549,7 @@ namespace TERCpp
                             if ( ( S->at(i+1).at(j+1) < 0 ) || ( cost < S->at(i+1).at(j+1) ) )
                             {
                                 S->at(i+1).at(j+1) = cost;
+                                D->at(i+1).at(j+1) = cost;
                                 P->at(i+1).at(j+1) = 'S';
                                 if ( cost < current_best )
                                 {
@@ -554,6 +570,7 @@ namespace TERCpp
                     if ( ( S->at(i).at(j+1) < 0 ) || ( S->at(i).at(j+1) > icost ) )
                     {
                         S->at(i).at(j+1) = icost;
+                        D->at(i).at(j+1) = icost;
                         P->at(i).at(j+1) = 'I';
                         if ( ( cur_last_peak <  i ) && ( current_best ==  icost ) )
                         {
@@ -567,6 +584,7 @@ namespace TERCpp
                     if ( ( S->at(i+1).at(j) < 0.0 ) || ( S->at(i+1).at(j) > dcost ) )
                     {
                         S->at(i+1).at(j) = dcost;
+                        D->at(i+1).at(j) = dcost;
                         P->at(i+1).at(j) = 'D';
                         if ( i >= last_good )
                         {
@@ -643,6 +661,7 @@ namespace TERCpp
         to_return->numWords = ref_size;
         to_return->alignment = path;
         to_return->numEdits = S->at(ref_size).at(hyp_size);
+        to_return->deepNumEdits = D->at(ref_size).at(hyp_size);
 	to_return->hyp = hyp;
 	to_return->ref = ref;
 	to_return->averageWords = ref_size;
@@ -663,7 +682,7 @@ namespace TERCpp
         cur_align.hyp = hyp;
         cur_align.ref = ref;
         cur_align.aftershift = hyp;
-        double edits = 0;
+        float edits = 0;
 //         int numshifts = 0;
 
         vector<terShift> * allshifts=new vector<terShift>(0);
@@ -733,7 +752,7 @@ namespace TERCpp
         vector<vecTerShift> * poss_shifts = new vector< vector<terShift> >(0) ;
 	terAlignment * cur_best_align = new terAlignment();
         terShift * cur_best_shift = new terShift();
-        double cur_best_shift_cost = 0.0;
+        float cur_best_shift_cost = 0.0;
 	vector<string> shiftarr;
 	vector<vecInt> curHypSpans;
 	terShift * curshift = new terShift();
@@ -760,7 +779,7 @@ namespace TERCpp
 	    cerr << "END DEBUG " << endl;
         }
         poss_shifts = calculerPermutations ( cur, ref, rloc, med_align, herr, rerr, ralign  );
-        double curerr = med_align.numEdits;
+        float curerr = med_align.numEdits;
         if ( PRINT_DEBUG )
         {
             cerr << "BEGIN DEBUG : terCalc::findBestShift :" << endl;
@@ -786,8 +805,8 @@ namespace TERCpp
                 cerr << "END DEBUG " << endl;
             }
             /* Consider shifts of length i+1 */
-            double curfix = curerr - ( cur_best_shift_cost + cur_best_align->numEdits );
-            double maxfix = ( 2 * ( 1 + i ) );
+            float curfix = curerr - ( cur_best_shift_cost + cur_best_align->numEdits );
+            float maxfix = ( 2 * ( 1 + i ) );
 	    if ( ( curfix > maxfix ) || ( ( cur_best_shift_cost != 0 ) && ( curfix == maxfix ) ) )
 	    {
 		break;
@@ -834,7 +853,7 @@ namespace TERCpp
 			curalign->aftershift = shiftarr;
 
 
-			double gain = ( cur_best_align->numEdits + cur_best_shift_cost ) - ( curalign->numEdits + curshift->cost );
+			float gain = ( cur_best_align->numEdits + cur_best_shift_cost ) - ( curalign->numEdits + curshift->cost );
 
 			if ( PRINT_DEBUG )
 			{

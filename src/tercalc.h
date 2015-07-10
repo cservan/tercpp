@@ -69,7 +69,8 @@ namespace TERCpp
 	    bool m_deep;
 
             // Utilisés dans minDistEdit et ils ne sont pas réajustés 
-            vector < vector < double > > * S;
+            vector < vector < float > > * S;
+            vector < vector < float > > * D;
             vector < vector < char > > * P;
             vector<vecInt> refSpans;
             vector<vecInt> hypSpans;
@@ -82,7 +83,7 @@ namespace TERCpp
             int delete_cost;
             int substitute_cost;
             int match_cost;
-            double infinite;
+            float infinite;
             terCalc();
 
 	    ~terCalc();

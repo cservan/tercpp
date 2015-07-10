@@ -194,8 +194,16 @@ namespace TERCpp
             tot_wds += l_result.averageWords;
 
             char outputCharBufferTmp[200];
-            sprintf(outputCharBufferTmp, "%19s | %4d | %4d | %4d | %4d | %4d | %6.1f | %8.3f | %8.3f",(l_id+":"+bestDocId).c_str(), l_result.numIns, l_result.numDel, l_result.numSub, l_result.numSft, l_result.numWsf, l_result.numEdits, l_result.averageWords, l_result.scoreAv()*100.0);
-            outputSum<< outputCharBufferTmp<<endl;
+		if (evalParameters.deep)
+		{
+		    sprintf(outputCharBufferTmp, "%19s | %4d | %4d | %4d | %4d | %4d | %6.1f | %8.3f | %8.3f",(l_id+":"+bestDocId).c_str(), l_result.numIns, l_result.numDel, l_result.numSub, l_result.numSft, l_result.numWsf, l_result.deepNumEdits, l_result.averageWords, l_result.deepScoreAv()*100.0);
+		    outputSum<< outputCharBufferTmp<<endl;
+		}
+		else
+		{
+		    sprintf(outputCharBufferTmp, "%19s | %4d | %4d | %4d | %4d | %4d | %6.1f | %8.3f | %8.3f",(l_id+":"+bestDocId).c_str(), l_result.numIns, l_result.numDel, l_result.numSub, l_result.numSft, l_result.numWsf, l_result.numEdits, l_result.averageWords, l_result.scoreAv()*100.0);
+		    outputSum<< outputCharBufferTmp<<endl;
+		}
 
             if (evalParameters.debugMode)
             {
@@ -230,7 +238,14 @@ namespace TERCpp
 		}
 // 		outputAlignments << "ALIG:"<< "\t"<<l_result.toString()<<"\t"<<endl;
 		outputAlignments << endl;
-		outputAlignments << "Score: "<< l_result.scoreAv()*100 << " ( "<< l_result.numEdits << " / " <<  l_result.averageWords<< " )" << endl << endl;
+		if (evalParameters.deep)
+		{  
+		    outputAlignments << "Score: "<< l_result.deepScoreAv()*100 << " ( "<< l_result.deepNumEdits << " / " <<  l_result.averageWords<< " )" << endl << endl;
+		}
+		else
+		{
+		    outputAlignments << "Score: "<< l_result.scoreAv()*100 << " ( "<< l_result.numEdits << " / " <<  l_result.averageWords<< " )" << endl << endl;
+		}
 	    }
 
         }
@@ -324,8 +339,10 @@ namespace TERCpp
 			cerr << "Reference : "<<	vectorToString(l_vref)<<endl;
 // 			cerr << "BestDoc Id : "<<  l_segRef->getBestDocId() <<endl;
 			cerr << "numEdits : "<< l_result.numEdits  <<endl;
+			cerr << "deepNumEdits : "<< l_result.deepNumEdits <<endl;
 			cerr << "averageWords : "<< l_result.averageWords  <<endl;
 			cerr << "score : "<<  l_result.scoreAv()  <<endl;
+			cerr << "deep score : "<<  l_result.deepScoreAv()  <<endl;
 			cerr << "terAlignment.toString :" << l_result.toString()<<endl;
 			cerr << "END DEBUG"<<endl<<endl;
 	    }
@@ -346,6 +363,7 @@ namespace TERCpp
 			cerr << "hypothesis score : "<<  segHypIt->getAlignment().scoreAv() <<endl;
 // 			cerr << "BestDoc Id : "<<  segHypIt->getBestDocId() <<endl;
 			cerr << "new score : "<<  l_result.scoreAv()  <<endl;
+			cerr << "new deep score : "<< l_result.deepScoreAv() <<endl;
 			cerr << "new BestDoc Id : "<< docStructReference.getDocId()  <<endl;
 			cerr << "Best Alignements : "<< l_result.printAlignments() <<endl;
 			cerr << "END DEBUG"<<endl<<endl;
@@ -493,8 +511,16 @@ namespace TERCpp
 		tot_wds += l_result.averageWords;
 
 		char outputCharBufferTmp[200];
-		sprintf(outputCharBufferTmp, "%19s | %4d | %4d | %4d | %4d | %4d | %6.1f | %8.3f | %8.3f",(l_id+":"+bestDocId).c_str(), l_result.numIns, l_result.numDel, l_result.numSub, l_result.numSft, l_result.numWsf, l_result.numEdits, l_result.averageWords, l_result.scoreAv()*100.0);
-		outputSum<< outputCharBufferTmp<<endl;
+		if (evalParameters.deep)
+		{
+		    sprintf(outputCharBufferTmp, "%19s | %4d | %4d | %4d | %4d | %4d | %6.1f | %8.3f | %8.3f",(l_id+":"+bestDocId).c_str(), l_result.numIns, l_result.numDel, l_result.numSub, l_result.numSft, l_result.numWsf, l_result.deepNumEdits, l_result.averageWords, l_result.deepScoreAv()*100.0);
+		    outputSum<< outputCharBufferTmp<<endl;
+		}
+		else
+		{
+		    sprintf(outputCharBufferTmp, "%19s | %4d | %4d | %4d | %4d | %4d | %6.1f | %8.3f | %8.3f",(l_id+":"+bestDocId).c_str(), l_result.numIns, l_result.numDel, l_result.numSub, l_result.numSft, l_result.numWsf, l_result.numEdits, l_result.averageWords, l_result.scoreAv()*100.0);
+		    outputSum<< outputCharBufferTmp<<endl;
+		}
 		if (evalParameters.printAlignments)
 		{
 		    
@@ -524,7 +550,14 @@ namespace TERCpp
 		    }
     // 		outputAlignments << "ALIG:"<< "\t"<<l_result.toString()<<"\t"<<endl;
 		    outputAlignments << endl;
-		    outputAlignments << "Score: "<< l_result.scoreAv()*100 << " ( "<< l_result.numEdits << " / " <<  l_result.averageWords<< " )" << endl << endl;
+		    if (evalParameters.deep)
+		    {  
+			outputAlignments << "Score: "<< l_result.deepScoreAv()*100 << " ( "<< l_result.deepNumEdits << " / " <<  l_result.averageWords<< " )" << endl << endl;
+		    }
+		    else
+		    {
+			outputAlignments << "Score: "<< l_result.scoreAv()*100 << " ( "<< l_result.numEdits << " / " <<  l_result.averageWords<< " )" << endl << endl;
+		    }
 // 		    if (evalParameters.printAlignmentsTrack)
 // 		    {
 // 			outputAlignments << endl << l_result.printAllShiftsTrack();

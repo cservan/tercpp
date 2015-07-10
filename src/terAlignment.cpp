@@ -34,6 +34,7 @@ namespace TERCpp
         //   TERshift[] allshifts = null;
 
         numEdits=0;
+        deepNumEdits=0;
         numWords=0;
 //         bestRef="";
 
@@ -48,6 +49,7 @@ namespace TERCpp
     void terAlignment::set(terAlignment& l_terAlignment)
     {
         numEdits=l_terAlignment.numEdits;
+        deepNumEdits=l_terAlignment.deepNumEdits;
         numWords=l_terAlignment.numWords;
         bestRef=l_terAlignment.bestRef;
         numIns=l_terAlignment.numIns;
@@ -73,6 +75,7 @@ namespace TERCpp
     void terAlignment::set(terAlignment* l_terAlignment)
     {
         numEdits=l_terAlignment->numEdits;
+        deepNumEdits=l_terAlignment->deepNumEdits;
         numWords=l_terAlignment->numWords;
         bestRef=l_terAlignment->bestRef;
         numIns=l_terAlignment->numIns;
@@ -161,7 +164,7 @@ namespace TERCpp
         return s.str();
 // 		return "";
     }
-    double terAlignment::score()
+    float terAlignment::score()
     {
         if ( ( numWords <= 0.0 ) && ( numEdits > 0.0 ) )
         {
@@ -171,9 +174,9 @@ namespace TERCpp
         {
             return 0.0;
         }
-        return ( double ) numEdits / numWords;
+        return ( float ) numEdits / numWords;
     }
-    double terAlignment::scoreAv()
+    float terAlignment::scoreAv()
     {
         if ( ( averageWords <= 0.0 ) && ( numEdits > 0.0 ) )
         {
@@ -183,7 +186,19 @@ namespace TERCpp
         {
             return 0.0;
         }
-        return ( double ) numEdits / averageWords;
+        return ( float ) numEdits / averageWords;
+    }
+    float terAlignment::deepScoreAv()
+    {
+        if ( ( averageWords <= 0.0 ) && ( deepNumEdits > 0.0 ) )
+        {
+            return 1.0;
+        }
+        if ( averageWords <= 0.0 )
+        {
+            return 0.0;
+        }
+        return ( float ) deepNumEdits / averageWords;
     }
 
   void terAlignment::scoreDetails() 

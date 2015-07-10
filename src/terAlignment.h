@@ -47,9 +47,10 @@ namespace TERCpp
 	    vector<int> hyp_int;
 	    vector<int> aftershift_int;
 
-            double numEdits;
-            double numWords;
-	    double averageWords;
+            float numEdits;
+            float deepNumEdits;
+            float numWords;
+	    float averageWords;
             vector<char> alignment;
             string bestRef;
 
@@ -66,8 +67,9 @@ namespace TERCpp
 
 
             string join ( string delim, vector<string> arr );
-            double score();
-            double scoreAv();
+            float score();
+            float scoreAv();
+            float deepScoreAv();
 	    string printAlignments();
 	    string printAllShifts();
 	    string printAllShiftsTrack();
