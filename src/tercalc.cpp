@@ -84,8 +84,9 @@ namespace TERCpp
 
     terAlignment terCalc::WERCalculation ( vector< string >& hyp , vector< string >& ref )
     {
-      
-      return minimizeDistanceEdition ( hyp, ref, hypSpans );
+      terAlignment to_return;
+      minimizeDistanceEdition ( hyp, ref, hypSpans ,& to_return);
+      return to_return;
       
     }
 
@@ -184,7 +185,7 @@ namespace TERCpp
         return false;
     }
 
-
+/*
     terAlignment terCalc::minimizeDistanceEdition ( vector< string >& hyp, vector< string >& ref, vector< vecInt >& curHypSpans )
     {
         float current_best = infinite;
@@ -469,6 +470,7 @@ namespace TERCpp
         return to_return;
 
     }
+    */
     void terCalc::minimizeDistanceEdition ( vector< string >& hyp, vector< string >& ref, vector< vecInt >& curHypSpans, terAlignment* to_return )
     {
         float current_best = infinite;
@@ -686,7 +688,7 @@ namespace TERCpp
         to_return->alignment = path;
         to_return->numEdits = S->at(ref_size).at(hyp_size);
         to_return->deepNumEdits = D->at(ref_size).at(hyp_size);
-// 	cerr << to_return->numEdits  << " "<< to_return->deepNumEdits << endl;
+// 	cerr << to_return->numEdits  << " "<< to_return.deepNumEdits << endl;
 	to_return->hyp = hyp;
 	to_return->ref = ref;
 	to_return->averageWords = ref_size;
@@ -702,7 +704,9 @@ namespace TERCpp
     terAlignment terCalc::TER ( vector<string>& hyp, vector<string>& ref )
     {
         hashMapInfos rloc = createConcordMots ( hyp, ref );
-        terAlignment cur_align = minimizeDistanceEdition ( hyp, ref, hypSpans );
+//         terAlignment cur_align = minimizeDistanceEdition ( hyp, ref, hypSpans );
+        terAlignment cur_align;
+        minimizeDistanceEdition ( hyp, ref, hypSpans , & cur_align );
         vector<string> cur = hyp;
         cur_align.hyp = hyp;
         cur_align.ref = ref;
