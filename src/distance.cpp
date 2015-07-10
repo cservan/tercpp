@@ -81,7 +81,7 @@ namespace word2vecdistance
       bi[a] = b;
 //       printf("\nWord: %s  Position in vocabulary: %lld\n", st[a], bi[a]);
       if (b == -1) {
-	printf("%s: Out of dictionary word!\n",st[a]);
+// 	printf("%s: Out of dictionary word!\n",st[a]);
         return to_return;
       }
     }
@@ -166,7 +166,7 @@ namespace word2vecdistance
 // 	printf("\nWord: %s  Position in vocabulary: %lld\n", st[a], bi[a]);
 	pos1=bi[a];
 	if (b == -1) {
-	  printf("%s: Out of dictionary word!\n",st[a]);
+// 	  printf("%s: Out of dictionary word!\n",st[a]);
 	  return 0.0;
 	}
       }
@@ -196,7 +196,7 @@ namespace word2vecdistance
 	pos2=bi[a];
 // 	printf("\nWord: %s  Position in vocabulary: %lld\n", st[a], bi[a]);
 	if (b == -1) {
-	  printf("%s: Out of dictionary word!\n",st[a]);
+// 	  printf("%s: Out of dictionary word!\n",st[a]);
 	  return 0.0;
 	}
       }
