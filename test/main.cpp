@@ -82,6 +82,7 @@ void readCommandLineArguments ( unsigned int argc, char *argv[] , param & p)
     p.shiftCost=1.0;
     p.W2VModel = "";
     p.deep = false;
+    p.threads = 1;
 
     string s ( "" );
     string infos ("");
@@ -130,6 +131,10 @@ void readCommandLineArguments ( unsigned int argc, char *argv[] , param & p)
         else if ( s.compare ( "-T" ) == 0 )
         {
             p.shiftCost = atof(infos.c_str());
+        }
+        else if ( s.compare ( "--threads" ) == 0 )
+        {
+            p.threads = atoi(infos.c_str());
         }
         else if ( s.compare ( "-w2v" ) == 0 )
         {
@@ -194,7 +199,7 @@ void readCommandLineArguments ( unsigned int argc, char *argv[] , param & p)
         {
             usage();
         }
-        else if ( s.compare ( "--" ) == 0 )
+        else if ( s.find ( "-" ) == 0 )
         {
 	    cerr << "ERROR : tercpp: unknown option :" << s <<endl;
             usage();

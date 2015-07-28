@@ -836,6 +836,7 @@ namespace Tools
 	to_return.shiftCost=p.shiftCost;
 	to_return.deep=p.deep;
 	to_return.W2VModel=p.W2VModel;
+	to_return.threads=p.threads;
         return to_return;
     }
     string printParams ( param p )
@@ -864,6 +865,7 @@ namespace Tools
         s << "shiftCost = " << p.shiftCost << endl;
         s << "deep = " << p.deep << endl;
         s << "W2VModel = " << p.W2VModel << endl;
+	s << "threads" << p.threads<< endl;
         return s.str();
 
     }

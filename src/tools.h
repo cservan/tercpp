@@ -65,6 +65,7 @@ struct param
     bool printAlignmentsTrack;
     bool WER;
     int debugLevel;
+    int threads;
     float matchCost;
     float delCost;
     float insCost;

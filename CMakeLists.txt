@@ -29,7 +29,10 @@ SET(CMAKE_VERBOSE_MAKEFILE ON)
 add_definitions(-DIBPP_LINUX -DIBPP_GCC)
 # include_directories(YOUR INCLUDE DIR HERE!!!)
 # link_directories(YOUR LIB DIR HERE!!!)
-
+include_directories(/home/servan/Tools/boost_1_55_0/include)
+link_directories(/home/servan/Tools/boost_1_55_0/lib)
+link_directories(/home/servan/Tools/myLibs/icu/lib)
+include_directories(/home/servan/Tools/myLibs/icu/include)
 
 #add definitions, compiler switches, etc.
 ADD_DEFINITIONS(-Wall -O2 -static)

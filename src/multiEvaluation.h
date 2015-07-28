@@ -29,6 +29,8 @@
 #include "xmlStructure.h"
 #include "sgmlDocument.h"
 #include "distance.h"
+#include <boost/thread/thread.hpp>
+
 using namespace Tools;
 namespace TERCpp
 {
@@ -51,6 +53,7 @@ namespace TERCpp
             void launchTxtEvaluation();
             void launchSGMLEvaluation();
             void evaluate ( documentStructure & docStructReference, documentStructure & docStructhypothesis );
+            void subEvaluate ( segmentStructure * segStructReference, segmentStructure * segStructHypothesis);
             string scoreTER ( vector<float> numEdits, vector<float> numWords );
 	    
         private:

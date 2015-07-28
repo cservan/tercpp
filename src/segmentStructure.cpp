@@ -56,6 +56,13 @@ namespace TERCpp
         content = vecS;
 	averageLength=0.0;
     }
+    segmentStructure::segmentStructure ( string id, vecString vecS, string docId )
+    {
+        segId = id;
+        content = vecS;
+	averageLength=0.0;
+	bestDocId = docId;
+    }
     segmentStructure::segmentStructure ( string id, string txt )
     {
         segId = id;

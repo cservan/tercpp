@@ -125,11 +125,14 @@ namespace TERCpp
         ifstream fichierLoad ( fileName.c_str(), ios::in );
         string line="";
         documentStructure l_doc;
+	stringstream l_stream;
 	l_doc.setFileName(fileName);
+	l_stream.str ( "" );
+	l_stream << ( int ) documents.size();
+	l_doc.setDocId ( l_stream.str() );
         if ( fichierLoad )
         {
             int l_ids = 1;
-            stringstream l_stream;
 	    l_stream.str ( "" );
 	    string l_key="";
 	    string line_mod="";
@@ -206,7 +209,7 @@ namespace TERCpp
                     cerr << "DEBUG tercpp multiTxtDocument::loadFile : " << l_key << "|" << vectorToString ( vecDocLine ) << "|" << endl << "Vector Size : " << vecDocLine.size() << endl << "Line length : " << ( int ) line_mod.length() << endl << "END DEBUG" << endl;
                 }
 //             hashHypothesis.addValue(l_key,vecDocLine);
-                segmentStructure l_seg ( l_key, vecDocLine );
+                segmentStructure l_seg ( l_key, vecDocLine, l_doc.getDocId() );
                 l_doc.addSegments ( l_seg );
 		 
             }
@@ -215,9 +218,6 @@ namespace TERCpp
 //         getline ( fichierHyp, line );
 //         Hyp=line;
             fichierLoad.close();  // on ferme le fichier
-            l_stream.str ( "" );
-            l_stream << ( int ) documents.size();
-            l_doc.setDocId ( l_stream.str() );
 	    addDocument ( l_doc );
             if ( multiTxtDocumentParams.debugMode )
             {

@@ -29,15 +29,23 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <map>
 #include <stdlib.h>
 
+namespace word2vecdistance
+{
 const long long max_size = 2000;         // max length of strings
 const long long N = 40;                  // number of closest words that will be shown
 const long long max_w = 50;              // max length of vocabulary entries
 using namespace std;
+const int vocab_hash_size = 30000000;
 
-namespace word2vecdistance
-{
+struct vocab_word {
+  long long cn;
+  int *point;
+  char *word, *code, codelen;
+};
+
 class distance
 {
     private:
@@ -49,10 +57,26 @@ class distance
       char ch;
       float *M;
       char *vocab;
+      float *D;
+      float *L;
+//       struct vocab_word *vocab;
+      int *vocab_hash;
+//       long long vocab_size;
+//       long long vocab_max_size = 1000;
+      
+      
     public:
+//       multimap < string, int > * mvocab;
       distance(string filename);
       vector < pair < string, float > > recherche(string s);
       float getDistance(string s1,string s2);
+      float getDistanceTest(string &s1,string &s2);
+      float getDistanceTest2(char * s1,char * s2);
+      bool strcompare(char * c1, char * c2);
+      int getWordHash(char *word);
+      int searchVocab(char *word);
+      void addWordToHash(char *word, int l_pos);
+      void fillHash();
 };
 }      
 #endif

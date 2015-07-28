@@ -48,6 +48,7 @@ namespace TERCpp
         public:
             segmentStructure();
             segmentStructure ( string id, vecString vecS );
+            segmentStructure ( string id, vecString vecS, string docId );
             segmentStructure ( string id, string txt );
 	    void setAverageLength(float f);
 	    float getAverageLength();

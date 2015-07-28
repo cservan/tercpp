@@ -20,6 +20,7 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  * **********************************/
 #include "multiEvaluation.h"
+// #include <boost/bind/bind_template.hpp>
 
 
 // #include <iostream>
@@ -271,19 +272,19 @@ namespace TERCpp
 
 	if (evalParameters.WER)
 	{
-	    cout << "Total WER: " << scoreTER ( editsResults, wordsResults );
+	    cout << "Total WER:\t" << scoreTER ( editsResults, wordsResults );
 	    if (evalParameters.deep)
 	    {
-		cout << "\tTotal D-WER: " << scoreTER ( deepEditsResults, wordsResults );
+		cout << "\t\tTotal D-WER:\t" << scoreTER ( deepEditsResults, wordsResults );
 	    }
 	    cout << endl;
 	}
 	else
 	{
-	    cout << "Total TER: " << scoreTER ( editsResults, wordsResults );
+	    cout << "Total TER:\t" << scoreTER ( editsResults, wordsResults );
 	    if (evalParameters.deep)
 	    {
-		cout << "\tTotal D-TER: " << scoreTER ( deepEditsResults, wordsResults );
+		cout << "\t\tTotal D-TER:\t" << scoreTER ( deepEditsResults, wordsResults );
 	    }
 	    cout << endl;
 	}
@@ -319,101 +320,161 @@ namespace TERCpp
 		    cerr <<"DEBUG tercpp : multiEvaluation::evaluate : testing hypothesis "<<endl;
 		    cerr <<" segId : "<<  docStructhypothesis.getSegments()->at(0).getSegId() << endl<<"END DEBUG"<<endl;
 	}
-	terCalc * l_evalTER;
 	int l_cpt=0;
 	vector<string> l_vhyp;
 	vector<string> l_vref;
-	terAlignment l_result;
-	float l_seuil=0.6;
+// 	float l_seuil=0.6;
 	
-	
-	
-        for ( vector<segmentStructure>::iterator segHypIt = docStructhypothesis.getSegments()->begin(); segHypIt != docStructhypothesis.getSegments()->end(); segHypIt++ )
-        {
-// 	  cerr << "************************************************************************************************************************************************************************************** 1 " << (docStructhypothesis.getSegments()->at(0)).toString()<<endl;
-// 	  cerr << ".";
-            l_evalTER = new terCalc();
-	    l_evalTER->setDebugMode(evalParameters.debugMode);
-	    l_evalTER->setCosts(evalParameters);
-	    if (evalParameters.deep)
+	if (evalParameters.threads == 1)
+	{
+	    terAlignment l_result;
+	    terCalc * l_evalTER;
+	    for ( vector<segmentStructure>::iterator segHypIt = docStructhypothesis.getSegments()->begin(); segHypIt != docStructhypothesis.getSegments()->end(); segHypIt++ )
 	    {
-		  l_evalTER->setDeep(true);
-		  l_evalTER->setW2VModel(m_distance);
+    // 	  cerr << "************************************************************************************************************************************************************************************** 1 " << (docStructhypothesis.getSegments()->at(0)).toString()<<endl;
+    // 	  cerr << ".";
+		l_evalTER = new terCalc();
+		l_evalTER->setDebugMode(evalParameters.debugMode);
+		l_evalTER->setCosts(evalParameters);
+		if (evalParameters.deep)
+		{
+		      l_evalTER->setDeep(true);
+// 		      l_evalTER->setW2VModel(m_distance);
+		}
+    // 	  cerr << "************************************************************************************************************************************************************************************** 2"<<endl;
+    // 	  (*segHypIt).getSegId() ;
+    // 	  cerr << "************************************************************************************************************************************************************************************** 3"<<endl;
+		segmentStructure * l_segRef = docStructReference.getSegment ( segHypIt->getSegId() );
+    // 	  cerr << "************************************************************************************************************************************************************************************** 4"<<endl;
+    // 	    exit(0);
+    // 	    l_seuil=0.3;
+		l_vhyp=segHypIt->getContent();
+		l_vref=l_segRef->getContent();
+    // 	    l_seuil=(float)l_vref.size()/100.0;
+    // 	    if ((evalParameters.WER) || (((float)l_vhyp.size() / (float)l_vref.size()) < l_seuil)) 
+		if (evalParameters.WER) 
+		{
+		    if (evalParameters.deep)
+		    {
+			l_result = l_evalTER->WERCalculation ( l_vhyp, l_vref, (*m_distance));
+		    }
+		    else
+		    {
+			l_result = l_evalTER->WERCalculation ( l_vhyp, l_vref);
+		    }
+		}
+		else
+		{
+		    if (evalParameters.deep)
+		    {
+			l_result = l_evalTER->TER ( l_vhyp, l_vref, (*m_distance));
+		    }
+		    else
+		    {
+			l_result = l_evalTER->TER ( l_vhyp, l_vref);
+		    }
+			  
+		}
+    // 	    terAlignment l_result = l_evalTER->TER ( segHypIt->getContent(), l_segRef->getContent());
+		delete l_evalTER;
+		l_result.averageWords = l_segRef->getAverageLength();
+		if (l_result.averageWords==0.0)
+		{
+		    cerr << "ERROR : tercpp : multiEvaluation::evaluate : averageWords is equal to zero" <<endl;
+		    exit(0);
+		}
+		l_segRef->setAlignment ( l_result );
+		if (evalParameters.debugMode)
+		{
+			    cerr <<"DEBUG tercpp : multiEvaluation::evaluate : testing   "<<endl<<"reference : "<<  l_segRef->getSegId() <<endl;
+			    cerr << "Hypothesis : "<< vectorToString(l_vhyp)<<endl;
+			    cerr << "Reference : "<<	vectorToString(l_vref)<<endl;
+    // 			cerr << "BestDoc Id : "<<  l_segRef->getBestDocId() <<endl;
+			    cerr << "numEdits : "<< l_result.numEdits  <<endl;
+			    cerr << "deepNumEdits : "<< l_result.deepNumEdits <<endl;
+			    cerr << "averageWords : "<< l_result.averageWords  <<endl;
+			    cerr << "score : "<<  l_result.scoreAv()  <<endl;
+			    cerr << "deep score : "<<  l_result.deepScoreAv()  <<endl;
+			    cerr << "terAlignment.toString :" << l_result.toString()<<endl;
+			    cerr << "END DEBUG"<<endl<<endl;
+		}
+		if ((segHypIt->getAlignment().numWords == 0) && (segHypIt->getAlignment().numEdits == 0 ))
+		{
+		    segHypIt->setAlignment ( l_result );
+		    segHypIt->setBestDocId ( docStructReference.getDocId() );
+		}
+		else if ( l_result.scoreAv() < segHypIt->getAlignment().scoreAv() )
+		{
+		    segHypIt->setAlignment ( l_result );
+		    segHypIt->setBestDocId ( docStructReference.getDocId() );
+		}
+		if (evalParameters.debugMode)
+		{
+			    cerr << "DEBUG tercpp : multiEvaluation::evaluate : testing   "<<endl;
+			    cerr << "hypothesis : "<<  segHypIt->getSegId() <<endl;
+			    cerr << "hypothesis score : "<<  segHypIt->getAlignment().scoreAv() <<endl;
+    // 			cerr << "BestDoc Id : "<<  segHypIt->getBestDocId() <<endl;
+			    cerr << "new score : "<<  l_result.scoreAv()  <<endl;
+			    cerr << "new deep score : "<< l_result.deepScoreAv() <<endl;
+			    cerr << "new BestDoc Id : "<< docStructReference.getDocId()  <<endl;
+			    cerr << "Best Alignements : "<< l_result.printAlignments() <<endl;
+			    cerr << "END DEBUG"<<endl<<endl;
+		}
+		if (evalParameters.count_verbose) 
+		{
+		    l_cpt++; cerr << l_cpt<< endl; 
+		}
+		else
+		if (evalParameters.verbose) 
+		{ 
+		    cerr << ".";   
+		}
 	    }
-// 	  cerr << "************************************************************************************************************************************************************************************** 2"<<endl;
-// 	  (*segHypIt).getSegId() ;
-// 	  cerr << "************************************************************************************************************************************************************************************** 3"<<endl;
-            segmentStructure * l_segRef = docStructReference.getSegment ( segHypIt->getSegId() );
-// 	  cerr << "************************************************************************************************************************************************************************************** 4"<<endl;
-// 	    exit(0);
-	    l_seuil=0.3;
-	    l_vhyp=segHypIt->getContent();
-	    l_vref=l_segRef->getContent();
-	    l_seuil=(float)l_vref.size()/100.0;
-// 	    if ((evalParameters.WER) || (((float)l_vhyp.size() / (float)l_vref.size()) < l_seuil)) 
-	    if (evalParameters.WER) 
+	}
+	else
+	{
+    	    vector<terAlignment> lv_results(evalParameters.threads);
+	    terCalc * l_evalTER;
+	    int lv_cpt=0;
+	    boost::thread_group * tgroup;
+	    tgroup = new boost::thread_group();
+	    for ( vector<segmentStructure>::iterator segHypIt = docStructhypothesis.getSegments()->begin(); segHypIt != docStructhypothesis.getSegments()->end(); segHypIt++ )
 	    {
-		l_result = l_evalTER->WERCalculation ( l_vhyp, l_vref);
+      // 	  cerr << "************************************************************************************************************************************************************************************** 1 " << (docStructhypothesis.getSegments()->at(0)).toString()<<endl;
+		segmentStructure * l_segRef = docStructReference.getSegment ( segHypIt->getSegId() );
+		segmentStructure * l_segHyp = docStructhypothesis.getSegment ( segHypIt->getSegId() );
+		boost::thread *t;
+
+// 		subEvaluate(l_segRef , l_segHyp);
+		t = new boost::thread(boost::bind(&multiEvaluation::subEvaluate,this,l_segRef , l_segHyp));
+		tgroup->add_thread(t);
+		lv_cpt++;
+		if (lv_cpt % evalParameters.threads == 0)
+		{
+// 		    cerr << "JOIN...";
+		    tgroup->join_all();
+// 		    cerr << "FINISHED!" << endl;
+		    lv_cpt = 0;
+// 		    delete(tgroup);
+// 		    tgroup = new boost::thread_group();
+
+		}
+      // 	  cerr << ".";
+		if (evalParameters.count_verbose) 
+		{
+		    l_cpt++; cerr << l_cpt<< endl; 
+		}
+		else
+		if (evalParameters.verbose) 
+		{ 
+		    cerr << ".";   
+		}
 	    }
-	    else
-	    {
-		l_result = l_evalTER->TER ( l_vhyp, l_vref);
-	    }
-// 	    terAlignment l_result = l_evalTER->TER ( segHypIt->getContent(), l_segRef->getContent());
-	    l_result.averageWords = l_segRef->getAverageLength();
-	    if (l_result.averageWords==0.0)
-	    {
-		cerr << "ERROR : tercpp : multiEvaluation::evaluate : averageWords is equal to zero" <<endl;
-		exit(0);
-	    }
-            l_segRef->setAlignment ( l_result );
-	    if (evalParameters.debugMode)
-	    {
-			cerr <<"DEBUG tercpp : multiEvaluation::evaluate : testing   "<<endl<<"reference : "<<  l_segRef->getSegId() <<endl;
-			cerr << "Hypothesis : "<< vectorToString(l_vhyp)<<endl;
-			cerr << "Reference : "<<	vectorToString(l_vref)<<endl;
-// 			cerr << "BestDoc Id : "<<  l_segRef->getBestDocId() <<endl;
-			cerr << "numEdits : "<< l_result.numEdits  <<endl;
-			cerr << "deepNumEdits : "<< l_result.deepNumEdits <<endl;
-			cerr << "averageWords : "<< l_result.averageWords  <<endl;
-			cerr << "score : "<<  l_result.scoreAv()  <<endl;
-			cerr << "deep score : "<<  l_result.deepScoreAv()  <<endl;
-			cerr << "terAlignment.toString :" << l_result.toString()<<endl;
-			cerr << "END DEBUG"<<endl<<endl;
-	    }
-	    if ((segHypIt->getAlignment().numWords == 0) && (segHypIt->getAlignment().numEdits == 0 ))
-	    {
-                segHypIt->setAlignment ( l_result );
-                segHypIt->setBestDocId ( docStructReference.getDocId() );
-	    }
-	    else if ( l_result.scoreAv() < segHypIt->getAlignment().scoreAv() )
-            {
-                segHypIt->setAlignment ( l_result );
-                segHypIt->setBestDocId ( docStructReference.getDocId() );
-            }
-	    if (evalParameters.debugMode)
-	    {
-			cerr << "DEBUG tercpp : multiEvaluation::evaluate : testing   "<<endl;
-			cerr << "hypothesis : "<<  segHypIt->getSegId() <<endl;
-			cerr << "hypothesis score : "<<  segHypIt->getAlignment().scoreAv() <<endl;
-// 			cerr << "BestDoc Id : "<<  segHypIt->getBestDocId() <<endl;
-			cerr << "new score : "<<  l_result.scoreAv()  <<endl;
-			cerr << "new deep score : "<< l_result.deepScoreAv() <<endl;
-			cerr << "new BestDoc Id : "<< docStructReference.getDocId()  <<endl;
-			cerr << "Best Alignements : "<< l_result.printAlignments() <<endl;
-			cerr << "END DEBUG"<<endl<<endl;
-	    }
-	    delete l_evalTER;
-	    if (evalParameters.count_verbose) 
-	    {
-		l_cpt++; cerr << l_cpt<< endl; 
-	    }
-	    else
-	    if (evalParameters.verbose) 
-	    { 
-		cerr << ".";   
-	    }
-        }
+// 	    cerr << "JOIN...";
+	    tgroup->join_all();
+// 	    cerr << "FINISHED!" << endl;
+	}
+// 	cerr << "FINI" <<endl;
 	if (evalParameters.debugMode)
 	{
 		    cerr <<"DEBUG tercpp : multiEvaluation::evaluate :    "<<endl<<"End of function"<<endl<<"END DEBUG"<<endl;
@@ -422,6 +483,88 @@ namespace TERCpp
 // 	{
 // 	  docStructhypothesis->getSegments()
 // 	}
+    }
+    void multiEvaluation::subEvaluate(segmentStructure* segStructReference, segmentStructure* segStructHypothesis)
+    {
+	vector<string> l_vhyp;
+	vector<string> l_vref;
+	terAlignment l_result;
+	terCalc * l_evalTER = new terCalc();
+	l_evalTER->setDebugMode(evalParameters.debugMode);
+	l_evalTER->setCosts(evalParameters);
+	if (evalParameters.deep)
+	{
+	      l_evalTER->setDeep(true);
+// 	      l_evalTER->setW2VModel(m_distance);
+	}
+	l_vhyp=segStructHypothesis->getContent();
+	l_vref=segStructReference->getContent();
+	if (evalParameters.WER) 
+	{
+	    if (evalParameters.deep)
+	    {
+		l_result = l_evalTER->WERCalculation ( l_vhyp, l_vref, (*m_distance));
+	    }
+	    else
+	    {
+		l_result = l_evalTER->WERCalculation ( l_vhyp, l_vref);
+	    }
+	}
+	else
+	{
+	    if (evalParameters.deep)
+	    {
+		l_result = l_evalTER->TER ( l_vhyp, l_vref, (*m_distance));
+	    }
+	    else
+	    {
+		l_result = l_evalTER->TER ( l_vhyp, l_vref);
+	    }
+		  
+	}
+	delete l_evalTER;
+	l_result.averageWords = segStructReference->getAverageLength();
+	if (l_result.averageWords==0.0)
+	{
+	    cerr << "ERROR : tercpp : multiEvaluation::evaluate : averageWords is equal to zero" <<endl;
+	    exit(0);
+	}
+	segStructReference->setAlignment ( l_result );
+	if (evalParameters.debugMode)
+	{
+	      cerr <<"DEBUG tercpp : multiEvaluation::evaluate : testing   "<<endl<<"reference : "<<  segStructReference->getSegId() <<endl;
+	      cerr << "Hypothesis : "<< vectorToString(l_vhyp)<<endl;
+	      cerr << "Reference : "<<	vectorToString(l_vref)<<endl;
+	      cerr << "numEdits : "<< l_result.numEdits  <<endl;
+	      cerr << "deepNumEdits : "<< l_result.deepNumEdits <<endl;
+	      cerr << "averageWords : "<< l_result.averageWords  <<endl;
+	      cerr << "score : "<<  l_result.scoreAv()  <<endl;
+	      cerr << "deep score : "<<  l_result.deepScoreAv()  <<endl;
+	      cerr << "terAlignment.toString :" << l_result.toString()<<endl;
+	      cerr << "END DEBUG"<<endl<<endl;
+	}
+	if ((segStructHypothesis->getAlignment().numWords == 0) && (segStructHypothesis->getAlignment().numEdits == 0 ))
+	{
+	    segStructHypothesis->setAlignment ( l_result );
+	    segStructHypothesis->setBestDocId ( segStructReference->getBestDocId());
+	}
+	else if ( l_result.scoreAv() < segStructHypothesis->getAlignment().scoreAv() )
+	{
+	    segStructHypothesis->setAlignment ( l_result );
+	    segStructHypothesis->setBestDocId ( segStructReference->getBestDocId());
+	}
+	if (evalParameters.debugMode)
+	{
+	      cerr << "DEBUG tercpp : multiEvaluation::evaluate : testing   "<<endl;
+	      cerr << "hypothesis : "<<  segStructHypothesis->getSegId() <<endl;
+	      cerr << "hypothesis score : "<<  segStructHypothesis->getAlignment().scoreAv() <<endl;
+// 			cerr << "BestDoc Id : "<<  segStructHypothesis->getBestDocId() <<endl;
+	      cerr << "new score : "<<  l_result.scoreAv()  <<endl;
+	      cerr << "new deep score : "<< l_result.deepScoreAv() <<endl;
+	      cerr << "new BestDoc Id : "<< segStructReference->getBestDocId() <<endl;
+	      cerr << "Best Alignements : "<< l_result.printAlignments() <<endl;
+	      cerr << "END DEBUG"<<endl<<endl;
+	}
     }
 
     string multiEvaluation::scoreTER ( vector<float> numEdits, vector<float> numWords )
@@ -447,17 +590,17 @@ namespace TERCpp
 
         if ( ( wordsCount <= 0.0 ) && ( editsCount > 0.0 ) )
         {
-            output <<  1.0 << " (" << editsCount << "/" << wordsCount << ")";
+            output <<  1.0 << "\t(" << editsCount << "/" << wordsCount << ")";
         }
         else
             if ( wordsCount <= 0.0 )
             {
-                output <<  0.0 << " (" << editsCount << "/" << wordsCount << ")" ;
+                output <<  0.0 << "\t(" << editsCount << "/" << wordsCount << ")" ;
             }
             else
             {
 //       return editsCount/wordsCount;
-                output <<  editsCount / wordsCount << " (" << editsCount << "/" << wordsCount << ")";
+                output <<  editsCount / wordsCount << "\t(" << editsCount << "/" << wordsCount << ")";
             }
         return output.str();
     }
@@ -643,19 +786,19 @@ namespace TERCpp
 
 	if (evalParameters.WER)
 	{
-	    cout << "Total WER: " << scoreTER ( editsResults, wordsResults );
+	    cout << "Total WER:\t" << scoreTER ( editsResults, wordsResults );
 	    if (evalParameters.deep)
 	    {
-		cout << "\tTotal D-WER: " << scoreTER ( deepEditsResults, wordsResults );
+		cout << "\t\tTotal D-WER:\t" << scoreTER ( deepEditsResults, wordsResults );
 	    }
 	    cout << endl;
 	}
 	else
 	{
-	    cout << "Total TER: " << scoreTER ( editsResults, wordsResults );
+	    cout << "Total TER:\t" << scoreTER ( editsResults, wordsResults );
 	    if (evalParameters.deep)
 	    {
-		cout << "\tTotal D-TER: " << scoreTER ( deepEditsResults, wordsResults );
+		cout << "\t\tTotal D-TER:\t" << scoreTER ( deepEditsResults, wordsResults );
 	    }
 	    cout << endl;
 	}

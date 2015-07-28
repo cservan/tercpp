@@ -7,8 +7,9 @@ namespace word2vecdistance
   {
     strcpy(file_name, filename.c_str());
     f = fopen(file_name, "rb");
-    if (f == NULL) {
-      printf("Input file not found\n");
+    if (f == NULL) 
+    {
+      printf("Word2Vec Model file not found\n");
       exit(-1);
     }
     fscanf(f, "%lld", &words);
@@ -16,14 +17,20 @@ namespace word2vecdistance
     vocab = (char *)malloc((long long)words * max_w * sizeof(char));
     for (a = 0; a < N; a++) bestw[a] = (char *)malloc(max_size * sizeof(char));
     M = (float *)malloc((long long)words * (long long)size * sizeof(float));
-    if (M == NULL) {
+//     D = (float *)malloc((long long)words * (long long)words * sizeof(float));
+//     L = (float *)malloc((long long)words * sizeof(float));
+    if (M == NULL) 
+    {
       printf("Cannot allocate memory: %lld MB    %lld  %lld\n", (long long)words * size * sizeof(float) / 1048576, words, size);
       exit(-1);
     }
+    cerr << "Loading word2vec model...";
 //     printf("Allocation of memory: %lld MB    %lld  %lld\n", (long long)words * size * sizeof(float) / 1048576, words, size);
-    for (b = 0; b < words; b++) {
+    for (b = 0; b < words; b++) 
+    {
       a = 0;
-      while (1) {
+      while (1) 
+      {
 	vocab[b * max_w + a] = fgetc(f);
 	if (feof(f) || (vocab[b * max_w + a] == ' ')) break;
 	if ((a < max_w) && (vocab[b * max_w + a] != '\n')) a++;
@@ -36,6 +43,35 @@ namespace word2vecdistance
       for (a = 0; a < size; a++) M[a + b * size] /= len;
     }
     fclose(f);
+    
+//     mvocab = new multimap < string, int >;
+//     for (b = 0; b < words; b++) 
+//     {
+// // 	pair < string, int > p(string(&vocab[b * max_w]),b);
+//  	mvocab->insert(make_pair < string, int > (string(&vocab[b * max_w]),b));
+//     }
+    
+//     for (b = 0; b < words; b++) 
+//     {
+// 	len = 0;
+// 	for (a = 0; a < size; a++) len += M[a + b * size] * M[a + b * size];
+// 	L[b] = sqrt(len);
+//     }
+//     for (b = 0; b < words; b++) 
+//     {
+// 	for (c = 0; c <= b; c++) 
+// 	{
+// 	    D[b*c] = 0.0;
+// 	    for (a = 0; a < size; a++) 
+// 	    {
+// 		D[b*c] += (M[a + b * size] / L[b]) * (M[a + c * size] / L[c]);
+// 	    }
+// 	}
+//     }
+
+//     cerr << mvocab->size() <<endl;
+    fillHash();
+    cerr << "finished!" <<endl;
   }
 
 
@@ -254,4 +290,159 @@ namespace word2vecdistance
 //       }
 //       return 1.0;
   }
+  float distance::getDistanceTest(string &s1, string &s2)
+  {
+      float vec1[max_size];
+      float vec2[max_size];
+      float len1=0;
+      float len2=0;
+      char st1[max_w];
+      char st2[max_w];
+      strcpy(st1, s1.c_str());
+      strcpy(st2, s2.c_str());
+      int pos1 = -1; 
+      int pos2 = -1;
+      b = 0;
+      for (b = 0; b < words; b++)
+      {
+	if (!strcmp(&vocab[b * max_w], st1)) 
+	{
+	  pos1=b;
+	  break;
+	}
+      }
+      if (pos1 == -1) 
+      {
+	return 0.0;
+      }
+      for (c = 0; c < words; c++)
+      {
+	if (!strcmp(&vocab[c * max_w], st2)) 
+	{
+	  pos2=c;
+	  break;
+	}
+      }
+      if (pos2 == -1) 
+      {
+	return 0.0;
+      }
+      dist = 0;
+      for (a = 0; a < size; a++) 
+      {
+	  dist += M[a + pos1 * size] * M[a + pos2 * size] ;
+      }
+      return dist;
+  }
+  float distance::getDistanceTest2(char * st1, char * st2)
+  {
+      float vec1[max_size];
+      float vec2[max_size];
+      float len1=0;
+      float len2=0;
+//       char st1[max_w];
+//       char st2[max_w];
+//       strcpy(st1, s1.c_str());
+//       strcpy(st2, s2.c_str());
+      int pos1 = -1; 
+      int pos2 = -1;
+      b = 0;
+      pos1 = searchVocab(st1);
+      if (pos1 == -1) 
+      {
+	return 0.0;
+      }
+      pos2 = searchVocab(st2);
+      if (pos2 == -1) 
+      {
+	return 0.0;
+      }
+      dist = 0;
+      for (a = 0; a < size; a++) 
+      {
+	  dist += M[a + pos1 * size] * M[a + pos2 * size] ;
+      }
+      return dist;
+  }
+  
+  
+  bool distance::strcompare(char* c1, char* c2)
+  {
+      int l1 = strlen(c1);
+      if (l1 != (int)strlen(c2))
+      {
+	  return false;
+      }
+      for (int i = 0; i < l1; i++)
+      {
+	  if (c1[i] != c2[i]) return false;
+      }
+      return true;
+  }
+        /* Returns hash value of a word */
+  int distance::getWordHash(char *word) 
+  {
+      unsigned long long a, hash = 0;
+      for (a = 0; a < strlen(word); a++) hash = hash * 257 + word[a];
+      hash = hash % vocab_hash_size;
+      return hash;
+  }
+
+  /* Returns position of a word in the vocabulary; if the word is not found, 
+  * returns -1 */
+  int distance::searchVocab(char *word) 
+  {
+      unsigned int hash = getWordHash(word);
+      int l_b;
+      while (1) 
+      {
+	  if (vocab_hash[hash] == -1) return -1;
+// 	  if (!strcmp(word, vocab[vocab_hash[hash]].word)) return vocab_hash[hash];
+	  l_b = vocab_hash[hash];
+	  if (!strcmp(&vocab[l_b * max_w], word)) return vocab_hash[hash];
+	  hash = (hash + 1) % vocab_hash_size;
+      }
+      return -1;
+  }
+  /* Adds a word to the vocabulary */
+  void distance::addWordToHash(char *word, int l_pos) {    
+//     unsigned int hash, length = strlen(word) + 1;
+// //     struct vocab_word *vocab = vocabs[lang_id];
+// //     int *vocab_hash = vocab_hashes[lang_id];      // array of *ints
+//     
+//     if (length > max_w) length = max_w;
+//     vocab[vocab_size].word = calloc(length, sizeof(char));
+//     strcpy(vocab[vocab_size].word, word);
+//     vocab[vocab_size].cn = 0;
+//     vocab_size++;
+//     // Reallocate memory if needed
+//     if (vocab_size + 2 >= vocab_max_size) {
+//       vocab_max_size += 1000;
+//       vocab = (struct vocab_word *)realloc(vocab, vocab_max_size * sizeof(struct vocab_word)); 
+//     }
+    unsigned int hash = getWordHash(word);
+    while (vocab_hash[hash] != -1) hash = (hash + 1) % vocab_hash_size;
+    vocab_hash[hash] = l_pos;
+//     return l_pos;
+  }
+  void distance::fillHash()
+  {
+      int c;
+      vocab_hash = (int*)calloc(vocab_hash_size, sizeof(int));
+//       cerr << "Size of hash vocab : " << vocab_hash_size <<endl;
+      for (c = 0; c < vocab_hash_size; c++)
+      {
+	  vocab_hash[c] = -1;
+      }
+//       cerr << "Size of vocab : " << words <<endl;
+      for (c = 0; c < words; c++)
+      {
+	 addWordToHash(&vocab[c * max_w], c);
+// 	cerr << ".";
+// 	 if (c % (words / 100) == 0)
+// 	   cerr << "|";
+      }
+//       cerr << endl;
+  }
+
 }

@@ -75,7 +75,7 @@ namespace TERCpp
             vector<vecInt> refSpans;
             vector<vecInt> hypSpans;
             int TAILLE_BEAM;
-	    word2vecdistance::distance * m_distance;
+// 	    word2vecdistance::distance * m_distance;
 
         public:
             int shift_cost;
@@ -95,18 +95,24 @@ namespace TERCpp
 //             int WERCalculation ( size_t * ref, size_t * hyp );
 //             int WERCalculation ( vector<string> ref, vector<string> hyp );
 //             int WERCalculation ( vector<int> ref, vector<int> hyp );
-	    terAlignment WERCalculation ( vector< string >& hyp, vector< string >& ref );
+	    terAlignment WERCalculation ( vector< string >& hyp, vector< string >& ref);
+	    terAlignment WERCalculation ( vector< string >& hyp, vector< string >& ref , word2vecdistance::distance & model_distance );
 // 	string vectorToString(vector<string> vec);
 // 	vector<string> subVector(vector<string> vec, int start, int end);
             hashMapInfos createConcordMots ( vector<string>& hyp, vector<string>& ref );
             terAlignment minimizeDistanceEdition ( vector<string>& hyp, vector<string>& ref, vector<vecInt>& curHypSpans );
             void minimizeDistanceEdition ( vector<string>& hyp, vector<string>& ref, vector<vecInt>& curHypSpans , terAlignment* l_terAlign);
+	    void minimizeDistanceEdition ( vector<string>& hyp, vector<string>& ref, vector<vecInt>& curHypSpans , terAlignment* l_terAlign, word2vecdistance::distance & model_distance);
 //             terAlignment minimizeDistanceEdition ( vector<string>& hyp, vector<string>& ref, vector<vecInt>& curHypSpans );
             bool trouverIntersection ( vecInt& refSpan, vecInt& hypSpan );
             terAlignment TER ( vector<string>& hyp, vector<string>& ref , float avRefLength );
             terAlignment TER ( vector<string>& hyp, vector<string>& ref );
+            terAlignment TER ( vector<string>& hyp, vector<string>& ref , word2vecdistance::distance & model_distance );
             terAlignment TER ( vector<int>& hyp, vector<int>& ref );
+            terAlignment TER ( vector<int>& hyp, vector<int>& ref , word2vecdistance::distance & model_distance );
             bestShiftStruct * findBestShift ( vector< string >& cur, vector< string >& hyp, vector< string >& ref, hashMapInfos& rloc, TERCpp::terAlignment& med_align );
+            bestShiftStruct * findBestShift ( vector< string >& cur, vector< string >& hyp, vector< string >& ref, hashMapInfos& rloc, TERCpp::terAlignment& med_align, word2vecdistance::distance & model_distance );
+            
             void calculateTerAlignment ( terAlignment& align, vector<bool>* herr, vector<bool>* rerr, vector<int>* ralign );
             vector<vecTerShift> * calculerPermutations ( vector< string >& hyp, vector< string >& ref, hashMapInfos& rloc, TERCpp::terAlignment& align, vector<bool>* herr, vector<bool>* rerr, vector<int>* ralign );
             alignmentStruct permuter ( vector<string>& words, terShift& s );
