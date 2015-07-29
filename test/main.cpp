@@ -82,6 +82,8 @@ void readCommandLineArguments ( unsigned int argc, char *argv[] , param & p)
     p.shiftCost=1.0;
     p.W2VModel = "";
     p.deep = false;
+    p.deeper = false;
+    p.threshold = 0.9;
     p.threads = 1;
 
     string s ( "" );
@@ -140,6 +142,14 @@ void readCommandLineArguments ( unsigned int argc, char *argv[] , param & p)
         {
             p.W2VModel = infos;
 	    p.deep = true;
+        }
+        else if ( s.compare ( "--deeper" ) == 0 )
+        {
+	    p.deeper = true;
+        }
+        else if ( s.compare ( "--threshold" ) == 0 )
+        {
+	    p.threshold = atof(infos.c_str());
         }
         else if ( s.compare ( "-n" ) == 0 )
         {

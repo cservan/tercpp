@@ -62,6 +62,8 @@ namespace TERCpp
 	D = new vector < vector < float > >(MAX_LENGTH_SENTENCE, std::vector<float>(MAX_LENGTH_SENTENCE,0.0));
 	P = new vector < vector < char > >(MAX_LENGTH_SENTENCE, std::vector<char>(MAX_LENGTH_SENTENCE,' '));
 	m_deep = false;
+	m_deeper = false;
+	m_threshold = 0.9;
 // 	m_distance = NULL;
     }
 
@@ -82,7 +84,7 @@ namespace TERCpp
 	shift_cost = l_p.shiftCost;
     }
 
-    terAlignment terCalc::WERCalculation ( vector< string >& hyp , vector< string >& ref , word2vecdistance::distance & model_distance)
+    terAlignment terCalc::WERCalculation ( vector< string >& hyp , vector< string >& ref , word2vecdistance::distance model_distance)
     {
       terAlignment to_return;
       minimizeDistanceEdition ( hyp, ref, hypSpans ,& to_return, model_distance);
@@ -98,7 +100,7 @@ namespace TERCpp
       
     }
 
-    terAlignment terCalc::TER ( vector< int >& hyp, vector< int >& ref , word2vecdistance::distance & model_distance)
+    terAlignment terCalc::TER ( vector< int >& hyp, vector< int >& ref , word2vecdistance::distance model_distance)
     {
         stringstream s;
         s.str ( "" );
@@ -516,7 +518,7 @@ namespace TERCpp
 
     }
     */
-    void terCalc::minimizeDistanceEdition ( vector< string >& hyp, vector< string >& ref, vector< vecInt >& curHypSpans, terAlignment* to_return , word2vecdistance::distance & model_distance)
+    void terCalc::minimizeDistanceEdition ( vector< string >& hyp, vector< string >& ref, vector< vecInt >& curHypSpans, terAlignment* to_return , word2vecdistance::distance model_distance)
     {
         float current_best = infinite;
         float last_best = infinite;
@@ -554,117 +556,238 @@ namespace TERCpp
 //         }
         S->at(0).at(0) = 0.0;
         D->at(0).at(0) = 0.0;
-        for ( j = 0; j <= hyp_size; j++ )
-        {
-            last_best = current_best;
-            current_best = infinite;
-            first_good = current_first_good;
-            current_first_good = -1;
-            last_good = cur_last_good;
-            cur_last_good = -1;
-            last_peak = cur_last_peak;
-            cur_last_peak = 0;
-	    float l_distance = 0.0;
-	    float l_erreur = 1.0;
-            for ( i = first_good; i <= ref_size; i++ )
-            {
-                if ( i > last_good )
-                {
-                    break;
-                }
-                if (S->at(i).at(j) < 0 )
-                {
-                    continue;
-                }
-                score = S->at(i).at(j);
-                deepscore = D->at(i).at(j);
-                if ( ( j < hyp_size ) && ( score > last_best + TAILLE_BEAM ) )
-                {
-                    continue;
-                }
-                if ( current_first_good == -1 )
-                {
-                    current_first_good = i ;
-                }
-                if ( ( i < ref_size ) && ( j < hyp_size ) )
-                {
-                    if ( ( int ) refSpans.size() ==  0 || ( int ) hypSpans.size() ==  0 || trouverIntersection ( refSpans.at ( i ), curHypSpans.at ( j ) ) )
-                    {
-                        if ( ( int ) ( ref.at ( i ).compare ( hyp.at ( j ) ) ) == 0 )
-                        {
-                            cost = match_cost + score;
-                            if ( ( S->at(i+1).at(j+1) == -1 ) || ( cost < S->at(i+1).at(j+1) ) )
-                            {
-				S->at(i+1).at(j+1) = cost;
-				D->at(i+1).at(j+1) = match_cost + deepscore;
-				P->at(i+1).at(j+1) = 'A';
-                            }
-                            if ( cost < current_best )
-                            {
-                                current_best = cost;
-                            }
-                            if ( current_best == cost )
-                            {
-                                cur_last_peak = i + 1;
-                            }
-                        }
-                        else
-                        {
-			    if (m_deep)
+	if (m_deeper)
+	{
+	    for ( j = 0; j <= hyp_size; j++ )
+	    {
+		last_best = current_best;
+		current_best = infinite;
+		first_good = current_first_good;
+		current_first_good = -1;
+		last_good = cur_last_good;
+		cur_last_good = -1;
+		last_peak = cur_last_peak;
+		cur_last_peak = 0;
+		float l_similarity = 0.0;
+		float l_erreur = 1.0;
+		for ( i = first_good; i <= ref_size; i++ )
+		{
+		    if ( i > last_good )
+		    {
+			break;
+		    }
+		    if (S->at(i).at(j) < 0 )
+		    {
+			continue;
+		    }
+		    score = S->at(i).at(j);
+		    deepscore = D->at(i).at(j);
+		    if ( ( j < hyp_size ) && ( score > last_best + TAILLE_BEAM ) )
+		    {
+			continue;
+		    }
+		    if ( current_first_good == -1 )
+		    {
+			current_first_good = i ;
+		    }
+		    if ( ( i < ref_size ) && ( j < hyp_size ) )
+		    {
+			l_similarity = model_distance.getDistance((char*)ref.at ( i ).c_str(), (char*)hyp.at ( j ).c_str());
+			l_erreur = 1-l_similarity; 
+// 			cerr << i << " " << j << " " << l_similarity << " " << m_threshold << endl;
+			if ( ( int ) refSpans.size() ==  0 || ( int ) hypSpans.size() ==  0 || trouverIntersection ( refSpans.at ( i ), curHypSpans.at ( j ) ) || l_similarity >= m_threshold)
+			{
+			    if ( l_similarity == 1 || ( int ) ( ref.at ( i ).compare ( hyp.at ( j ) ) ) == 0  )
 			    {
-				l_distance = model_distance.getDistanceTest2((char*)ref.at ( i ).c_str(), (char*)hyp.at ( j ).c_str());
-				l_erreur = 1-l_distance; 
-	// 			cerr << ref.at ( i ) << "\t" << hyp.at ( j ) << "\t" << l_distance << "\t" << l_erreur <<endl;
+				cost = match_cost + score;
+				if ( ( S->at(i+1).at(j+1) == -1 ) || ( cost < S->at(i+1).at(j+1) ) )
+				{
+				    S->at(i+1).at(j+1) = cost;
+				    D->at(i+1).at(j+1) = match_cost + deepscore;
+				    P->at(i+1).at(j+1) = 'A';
+				}
+				if ( cost < current_best )
+				{
+				    current_best = cost;
+				}
+				if ( current_best == cost )
+				{
+				    cur_last_peak = i + 1;
+				}
 			    }
-                            cost = substitute_cost + score;
-                            if ( ( S->at(i+1).at(j+1) < 0 ) || ( cost < S->at(i+1).at(j+1) ) )
-                            {
-                                S->at(i+1).at(j+1) = cost;
-                                D->at(i+1).at(j+1) = deepscore + l_erreur ;
-                                P->at(i+1).at(j+1) = 'S';
-                                if ( cost < current_best )
-                                {
-                                    current_best = cost;
-                                }
-                                if ( current_best == cost )
-                                {
-                                    cur_last_peak = i + 1 ;
-                                }
-                            }
-                        }
-                    }
-                }
-                cur_last_good = i + 1;
-                if ( j < hyp_size )
-                {
-                    icost = score + insert_cost;
-                    if ( ( S->at(i).at(j+1) < 0 ) || ( S->at(i).at(j+1) > icost ) )
-                    {
-                        S->at(i).at(j+1) = icost;
-                        D->at(i).at(j+1) = deepscore + insert_cost;;
-                        P->at(i).at(j+1) = 'I';
-                        if ( ( cur_last_peak <  i ) && ( current_best ==  icost ) )
-                        {
-                            cur_last_peak = i;
-                        }
-                    }
-                }
-                if ( i < ref_size )
-                {
-                    dcost =  score + delete_cost;
-                    if ( ( S->at(i+1).at(j) < 0.0 ) || ( S->at(i+1).at(j) > dcost ) )
-                    {
-                        S->at(i+1).at(j) = dcost;
-                        D->at(i+1).at(j) = deepscore + delete_cost;
-                        P->at(i+1).at(j) = 'D';
-                        if ( i >= last_good )
-                        {
-                            last_good = i + 1 ;
-                        }
-                    }
-                }
-            }
-        }
+			    else
+			    {
+// 				if (m_deep)
+// 				{
+// 				    l_similarity = model_distance.getDistance((char*)ref.at ( i ).c_str(), (char*)hyp.at ( j ).c_str());
+// 				    l_erreur = 1-l_similarity; 
+// 	    // 			cerr << ref.at ( i ) << "\t" << hyp.at ( j ) << "\t" << l_similarity << "\t" << l_erreur <<endl;
+// 				}
+				cost = substitute_cost + score;
+				
+				if ( ( S->at(i+1).at(j+1) < 0 ) || ( cost < S->at(i+1).at(j+1) ) )
+				{
+				    S->at(i+1).at(j+1) = score + substitute_cost ;
+				    D->at(i+1).at(j+1) = deepscore + l_erreur ;
+				    P->at(i+1).at(j+1) = 'S';
+				    if ( cost < current_best )
+				    {
+					current_best = cost;
+				    }
+				    if ( current_best == cost )
+				    {
+					cur_last_peak = i + 1 ;
+				    }
+				}
+			    }
+			}
+		    }
+		    cur_last_good = i + 1;
+		    if ( j < hyp_size )
+		    {
+			icost = score + insert_cost;
+			if ( ( S->at(i).at(j+1) < 0 ) || ( S->at(i).at(j+1) > icost ) )
+			{
+			    S->at(i).at(j+1) = icost;
+			    D->at(i).at(j+1) = deepscore + insert_cost;
+			    P->at(i).at(j+1) = 'I';
+			    if ( ( cur_last_peak <  i ) && ( current_best ==  icost ) )
+			    {
+				cur_last_peak = i;
+			    }
+			}
+		    }
+		    if ( i < ref_size )
+		    {
+			dcost =  score + delete_cost;
+			if ( ( S->at(i+1).at(j) < 0.0 ) || ( S->at(i+1).at(j) > dcost ) )
+			{
+			    S->at(i+1).at(j) = dcost;
+			    D->at(i+1).at(j) = deepscore + delete_cost;
+			    P->at(i+1).at(j) = 'D';
+			    if ( i >= last_good )
+			    {
+				last_good = i + 1 ;
+			    }
+			}
+		    }
+		}
+	    }
+	}
+	else
+	{
+	    for ( j = 0; j <= hyp_size; j++ )
+	    {
+		last_best = current_best;
+		current_best = infinite;
+		first_good = current_first_good;
+		current_first_good = -1;
+		last_good = cur_last_good;
+		cur_last_good = -1;
+		last_peak = cur_last_peak;
+		cur_last_peak = 0;
+		float l_similarity = 0.0;
+		float l_erreur = 1.0;
+		for ( i = first_good; i <= ref_size; i++ )
+		{
+		    if ( i > last_good )
+		    {
+			break;
+		    }
+		    if (S->at(i).at(j) < 0 )
+		    {
+			continue;
+		    }
+		    score = S->at(i).at(j);
+		    deepscore = D->at(i).at(j);
+		    if ( ( j < hyp_size ) && ( score > last_best + TAILLE_BEAM ) )
+		    {
+			continue;
+		    }
+		    if ( current_first_good == -1 )
+		    {
+			current_first_good = i ;
+		    }
+		    if ( ( i < ref_size ) && ( j < hyp_size ) )
+		    {
+			if ( ( int ) refSpans.size() ==  0 || ( int ) hypSpans.size() ==  0 || trouverIntersection ( refSpans.at ( i ), curHypSpans.at ( j ) ) )
+			{
+			    if ( ( int ) ( ref.at ( i ).compare ( hyp.at ( j ) ) ) == 0 )
+			    {
+				cost = match_cost + score;
+				if ( ( S->at(i+1).at(j+1) == -1 ) || ( cost < S->at(i+1).at(j+1) ) )
+				{
+				    S->at(i+1).at(j+1) = cost;
+				    D->at(i+1).at(j+1) = match_cost + deepscore;
+				    P->at(i+1).at(j+1) = 'A';
+				}
+				if ( cost < current_best )
+				{
+				    current_best = cost;
+				}
+				if ( current_best == cost )
+				{
+				    cur_last_peak = i + 1;
+				}
+			    }
+			    else
+			    {
+				if (m_deep)
+				{
+				    l_similarity = model_distance.getDistance((char*)ref.at ( i ).c_str(), (char*)hyp.at ( j ).c_str());
+				    l_erreur = 1-l_similarity; 
+	    // 			cerr << ref.at ( i ) << "\t" << hyp.at ( j ) << "\t" << l_similarity << "\t" << l_erreur <<endl;
+				}
+				cost = substitute_cost + score;
+				if ( ( S->at(i+1).at(j+1) < 0 ) || ( cost < S->at(i+1).at(j+1) ) )
+				{
+				    S->at(i+1).at(j+1) = cost;
+				    D->at(i+1).at(j+1) = deepscore + l_erreur ;
+				    P->at(i+1).at(j+1) = 'S';
+				    if ( cost < current_best )
+				    {
+					current_best = cost;
+				    }
+				    if ( current_best == cost )
+				    {
+					cur_last_peak = i + 1 ;
+				    }
+				}
+			    }
+			}
+		    }
+		    cur_last_good = i + 1;
+		    if ( j < hyp_size )
+		    {
+			icost = score + insert_cost;
+			if ( ( S->at(i).at(j+1) < 0 ) || ( S->at(i).at(j+1) > icost ) )
+			{
+			    S->at(i).at(j+1) = icost;
+			    D->at(i).at(j+1) = deepscore + insert_cost;;
+			    P->at(i).at(j+1) = 'I';
+			    if ( ( cur_last_peak <  i ) && ( current_best ==  icost ) )
+			    {
+				cur_last_peak = i;
+			    }
+			}
+		    }
+		    if ( i < ref_size )
+		    {
+			dcost =  score + delete_cost;
+			if ( ( S->at(i+1).at(j) < 0.0 ) || ( S->at(i+1).at(j) > dcost ) )
+			{
+			    S->at(i+1).at(j) = dcost;
+			    D->at(i+1).at(j) = deepscore + delete_cost;
+			    P->at(i+1).at(j) = 'D';
+			    if ( i >= last_good )
+			    {
+				last_good = i + 1 ;
+			    }
+			}
+		    }
+		}
+	    }
+	}
 
 
         int tracelength = 0;
@@ -842,7 +965,7 @@ namespace TERCpp
             cur_last_good = -1;
             last_peak = cur_last_peak;
             cur_last_peak = 0;
-	    float l_distance = 0.0;
+// 	    float l_similarity = 0.0;
 	    float l_erreur = 1.0;
             for ( i = first_good; i <= ref_size; i++ )
             {
@@ -890,9 +1013,9 @@ namespace TERCpp
                         {
 // 			    if (m_deep)
 // 			    {
-// 				l_distance = model_distance.getDistance(ref.at ( i ), hyp.at ( j ));
-// 				l_erreur = 1-l_distance; 
-// 	// 			cerr << ref.at ( i ) << "\t" << hyp.at ( j ) << "\t" << l_distance << "\t" << l_erreur <<endl;
+// 				l_similarity = model_distance.getDistance(ref.at ( i ), hyp.at ( j ));
+// 				l_erreur = 1-l_similarity; 
+// 	// 			cerr << ref.at ( i ) << "\t" << hyp.at ( j ) << "\t" << l_similarity << "\t" << l_erreur <<endl;
 // 			    }
                             cost = substitute_cost + score;
                             if ( ( S->at(i+1).at(j+1) < 0 ) || ( cost < S->at(i+1).at(j+1) ) )
@@ -1024,7 +1147,7 @@ namespace TERCpp
     }
 
     
-    terAlignment terCalc::TER ( vector<string>& hyp, vector<string>& ref, word2vecdistance::distance & model_distance )
+    terAlignment terCalc::TER ( vector<string>& hyp, vector<string>& ref, word2vecdistance::distance model_distance )
     {
         hashMapInfos rloc = createConcordMots ( hyp, ref );
 //         terAlignment cur_align = minimizeDistanceEdition ( hyp, ref, hypSpans );
@@ -1135,7 +1258,7 @@ namespace TERCpp
         return to_return;
     }
 
-    bestShiftStruct * terCalc::findBestShift ( vector<string>& cur, vector<string>& hyp, vector<string>& ref, hashMapInfos& rloc, terAlignment& med_align, word2vecdistance::distance & model_distance )
+    bestShiftStruct * terCalc::findBestShift ( vector<string>& cur, vector<string>& hyp, vector<string>& ref, hashMapInfos& rloc, terAlignment& med_align, word2vecdistance::distance model_distance )
     {
 	CALL_FIND_BSHIFT++;
 	if ( PRINT_DEBUG )
@@ -1191,6 +1314,10 @@ namespace TERCpp
         }
         poss_shifts = calculerPermutations ( cur, ref, rloc, med_align, herr, rerr, ralign  );
         float curerr = med_align.numEdits;
+	if (m_deeper)
+	{
+	    curerr = med_align.deepNumEdits;
+	}
         if ( PRINT_DEBUG )
         {
             cerr << "BEGIN DEBUG : terCalc::findBestShift :" << endl;
@@ -1217,6 +1344,10 @@ namespace TERCpp
             }
             /* Consider shifts of length i+1 */
             float curfix = curerr - ( cur_best_shift_cost + cur_best_align->numEdits );
+	    if (m_deeper)
+	    {
+		curfix = curerr - ( cur_best_shift_cost + cur_best_align->deepNumEdits );
+	    }
             float maxfix = ( 2 * ( 1 + i ) );
 	    if ( ( curfix > maxfix ) || ( ( cur_best_shift_cost != 0 ) && ( curfix == maxfix ) ) )
 	    {
@@ -1227,6 +1358,10 @@ namespace TERCpp
 		for ( s = 0; s < ( int ) ( poss_shifts->at ( i ) ).size(); s++ )
 		{
 		    curfix = curerr - ( cur_best_shift_cost + cur_best_align->numEdits );
+		    if (m_deeper)
+		    {
+			curfix = curerr - ( cur_best_shift_cost + cur_best_align->deepNumEdits );
+		    }
 		    if ( ( curfix > maxfix ) || ( ( cur_best_shift_cost != 0 ) && ( curfix == maxfix ) ) )
 		    {
 			break;
@@ -1265,13 +1400,25 @@ namespace TERCpp
 
 
 			float gain = ( cur_best_align->numEdits + cur_best_shift_cost ) - ( curalign->numEdits + curshift->cost );
+			if (m_deeper)
+			{
+			    gain = ( cur_best_align->deepNumEdits + cur_best_shift_cost ) - ( curalign->deepNumEdits + curshift->cost );
+			}
 
 			if ( PRINT_DEBUG )
 			{
 			    cerr << "BEGIN DEBUG : terCalc::findBestShift :" << endl;
 			    cerr << "Gain for " << curshift->toString() << " is " << gain << ". (result: [" << curalign->join ( " ", shiftarr ) << "]" << endl;
-			    cerr << "Details of gains : gain = ( cur_best_align->numEdits + cur_best_shift_cost ) - ( curalign->numEdits + curshift->cost )"<<endl;
-			    cerr << "Details of gains : gain = ("<<cur_best_align->numEdits << "+" << cur_best_shift_cost << ") - (" << curalign->numEdits << "+" <<  curshift->cost << ")"<<endl;
+			    if (m_deeper)
+			    {
+				cerr << "Details of gains : gain = ( cur_best_align->deepNumEdits + cur_best_shift_cost ) - ( curalign->deepNumEdits + curshift->cost )"<<endl;
+				cerr << "Details of gains : gain = ("<<cur_best_align->deepNumEdits << "+" << cur_best_shift_cost << ") - (" << curalign->deepNumEdits << "+" <<  curshift->cost << ")"<<endl;
+			    }
+			    else
+			    {
+				cerr << "Details of gains : gain = ( cur_best_align->numEdits + cur_best_shift_cost ) - ( curalign->numEdits + curshift->cost )"<<endl;
+				cerr << "Details of gains : gain = ("<<cur_best_align->numEdits << "+" << cur_best_shift_cost << ") - (" << curalign->numEdits << "+" <<  curshift->cost << ")"<<endl;
+			    }
 			    cerr << "" << curalign->toString() << "\n" << endl;
 			    cerr << "END DEBUG " << endl;
 			}
@@ -1388,6 +1535,10 @@ namespace TERCpp
         }
         poss_shifts = calculerPermutations ( cur, ref, rloc, med_align, herr, rerr, ralign  );
         float curerr = med_align.numEdits;
+	if (m_deeper)
+	{
+	    curerr = med_align.deepNumEdits;
+	}
         if ( PRINT_DEBUG )
         {
             cerr << "BEGIN DEBUG : terCalc::findBestShift :" << endl;
@@ -1414,6 +1565,10 @@ namespace TERCpp
             }
             /* Consider shifts of length i+1 */
             float curfix = curerr - ( cur_best_shift_cost + cur_best_align->numEdits );
+	    if (m_deeper)
+	    {
+		curfix = curerr - ( cur_best_shift_cost + cur_best_align->deepNumEdits );
+	    }
             float maxfix = ( 2 * ( 1 + i ) );
 	    if ( ( curfix > maxfix ) || ( ( cur_best_shift_cost != 0 ) && ( curfix == maxfix ) ) )
 	    {
@@ -1424,6 +1579,10 @@ namespace TERCpp
 		for ( s = 0; s < ( int ) ( poss_shifts->at ( i ) ).size(); s++ )
 		{
 		    curfix = curerr - ( cur_best_shift_cost + cur_best_align->numEdits );
+		    if (m_deeper)
+		    {
+			curfix = curerr - ( cur_best_shift_cost + cur_best_align->deepNumEdits );
+		    }
 		    if ( ( curfix > maxfix ) || ( ( cur_best_shift_cost != 0 ) && ( curfix == maxfix ) ) )
 		    {
 			break;
@@ -1462,13 +1621,24 @@ namespace TERCpp
 
 
 			float gain = ( cur_best_align->numEdits + cur_best_shift_cost ) - ( curalign->numEdits + curshift->cost );
-
+			if (m_deeper)
+			{
+			    gain = ( cur_best_align->deepNumEdits + cur_best_shift_cost ) - ( curalign->deepNumEdits + curshift->cost );
+			}
 			if ( PRINT_DEBUG )
 			{
 			    cerr << "BEGIN DEBUG : terCalc::findBestShift :" << endl;
 			    cerr << "Gain for " << curshift->toString() << " is " << gain << ". (result: [" << curalign->join ( " ", shiftarr ) << "]" << endl;
-			    cerr << "Details of gains : gain = ( cur_best_align->numEdits + cur_best_shift_cost ) - ( curalign->numEdits + curshift->cost )"<<endl;
-			    cerr << "Details of gains : gain = ("<<cur_best_align->numEdits << "+" << cur_best_shift_cost << ") - (" << curalign->numEdits << "+" <<  curshift->cost << ")"<<endl;
+			    if (m_deeper)
+			    {
+				cerr << "Details of gains : gain = ( cur_best_align->deepNumEdits + cur_best_shift_cost ) - ( curalign->deepNumEdits + curshift->cost )"<<endl;
+				cerr << "Details of gains : gain = ("<<cur_best_align->deepNumEdits << "+" << cur_best_shift_cost << ") - (" << curalign->deepNumEdits << "+" <<  curshift->cost << ")"<<endl;
+			    }
+			    else
+			    {
+				cerr << "Details of gains : gain = ( cur_best_align->numEdits + cur_best_shift_cost ) - ( curalign->numEdits + curshift->cost )"<<endl;
+				cerr << "Details of gains : gain = ("<<cur_best_align->numEdits << "+" << cur_best_shift_cost << ") - (" << curalign->numEdits << "+" <<  curshift->cost << ")"<<endl;
+			    }
 			    cerr << "" << curalign->toString() << "\n" << endl;
 			    cerr << "END DEBUG " << endl;
 			}

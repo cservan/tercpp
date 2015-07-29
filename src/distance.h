@@ -71,7 +71,7 @@ class distance
       vector < pair < string, float > > recherche(string s);
       float getDistance(string s1,string s2);
       float getDistanceTest(string &s1,string &s2);
-      float getDistanceTest2(char * s1,char * s2);
+      float getDistance(char * s1,char * s2);
       bool strcompare(char * c1, char * c2);
       int getWordHash(char *word);
       int searchVocab(char *word);

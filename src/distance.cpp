@@ -334,7 +334,7 @@ namespace word2vecdistance
       }
       return dist;
   }
-  float distance::getDistanceTest2(char * st1, char * st2)
+  float distance::getDistance(char * st1, char * st2)
   {
       float vec1[max_size];
       float vec2[max_size];

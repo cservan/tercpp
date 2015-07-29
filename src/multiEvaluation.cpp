@@ -339,6 +339,9 @@ namespace TERCpp
 		if (evalParameters.deep)
 		{
 		      l_evalTER->setDeep(true);
+		      l_evalTER->m_deeper = evalParameters.deeper;
+		      l_evalTER->m_threshold = evalParameters.threshold;
+// 		      cerr << l_evalTER->m_deeper  << endl;
 // 		      l_evalTER->setW2VModel(m_distance);
 		}
     // 	  cerr << "************************************************************************************************************************************************************************************** 2"<<endl;
@@ -496,6 +499,10 @@ namespace TERCpp
 	{
 	      l_evalTER->setDeep(true);
 // 	      l_evalTER->setW2VModel(m_distance);
+	      l_evalTER->m_deeper = evalParameters.deeper;
+	      l_evalTER->m_threshold = evalParameters.threshold;
+// 	      cerr << l_evalTER->m_deeper  << endl;
+	      
 	}
 	l_vhyp=segStructHypothesis->getContent();
 	l_vref=segStructReference->getContent();
