@@ -623,12 +623,12 @@ namespace TERCpp
 // 				    l_erreur = 1-l_similarity; 
 // 	    // 			cerr << ref.at ( i ) << "\t" << hyp.at ( j ) << "\t" << l_similarity << "\t" << l_erreur <<endl;
 // 				}
-				cost = substitute_cost + score;
-				
+// 				cost = substitute_cost + score;
+				cost = score + l_erreur;
 				if ( ( S->at(i+1).at(j+1) < 0 ) || ( cost < S->at(i+1).at(j+1) ) )
 				{
-				    S->at(i+1).at(j+1) = score + substitute_cost ;
-				    D->at(i+1).at(j+1) = deepscore + l_erreur ;
+				    S->at(i+1).at(j+1) = cost;
+				    D->at(i+1).at(j+1) = substitute_cost + deepscore ;
 				    P->at(i+1).at(j+1) = 'S';
 				    if ( cost < current_best )
 				    {
@@ -1314,10 +1314,10 @@ namespace TERCpp
         }
         poss_shifts = calculerPermutations ( cur, ref, rloc, med_align, herr, rerr, ralign  );
         float curerr = med_align.numEdits;
-	if (m_deeper)
-	{
-	    curerr = med_align.deepNumEdits;
-	}
+// 	if (m_deeper)
+// 	{
+// 	    curerr = med_align.deepNumEdits;
+// 	}
         if ( PRINT_DEBUG )
         {
             cerr << "BEGIN DEBUG : terCalc::findBestShift :" << endl;
@@ -1344,10 +1344,10 @@ namespace TERCpp
             }
             /* Consider shifts of length i+1 */
             float curfix = curerr - ( cur_best_shift_cost + cur_best_align->numEdits );
-	    if (m_deeper)
-	    {
-		curfix = curerr - ( cur_best_shift_cost + cur_best_align->deepNumEdits );
-	    }
+// 	    if (m_deeper)
+// 	    {
+// 		curfix = curerr - ( cur_best_shift_cost + cur_best_align->deepNumEdits );
+// 	    }
             float maxfix = ( 2 * ( 1 + i ) );
 	    if ( ( curfix > maxfix ) || ( ( cur_best_shift_cost != 0 ) && ( curfix == maxfix ) ) )
 	    {
@@ -1358,10 +1358,10 @@ namespace TERCpp
 		for ( s = 0; s < ( int ) ( poss_shifts->at ( i ) ).size(); s++ )
 		{
 		    curfix = curerr - ( cur_best_shift_cost + cur_best_align->numEdits );
-		    if (m_deeper)
-		    {
-			curfix = curerr - ( cur_best_shift_cost + cur_best_align->deepNumEdits );
-		    }
+// 		    if (m_deeper)
+// 		    {
+// 			curfix = curerr - ( cur_best_shift_cost + cur_best_align->deepNumEdits );
+// 		    }
 		    if ( ( curfix > maxfix ) || ( ( cur_best_shift_cost != 0 ) && ( curfix == maxfix ) ) )
 		    {
 			break;
@@ -1400,25 +1400,25 @@ namespace TERCpp
 
 
 			float gain = ( cur_best_align->numEdits + cur_best_shift_cost ) - ( curalign->numEdits + curshift->cost );
-			if (m_deeper)
-			{
-			    gain = ( cur_best_align->deepNumEdits + cur_best_shift_cost ) - ( curalign->deepNumEdits + curshift->cost );
-			}
+// 			if (m_deeper)
+// 			{
+// 			    gain = ( cur_best_align->deepNumEdits + cur_best_shift_cost ) - ( curalign->deepNumEdits + curshift->cost );
+// 			}
 
 			if ( PRINT_DEBUG )
 			{
 			    cerr << "BEGIN DEBUG : terCalc::findBestShift :" << endl;
 			    cerr << "Gain for " << curshift->toString() << " is " << gain << ". (result: [" << curalign->join ( " ", shiftarr ) << "]" << endl;
-			    if (m_deeper)
-			    {
-				cerr << "Details of gains : gain = ( cur_best_align->deepNumEdits + cur_best_shift_cost ) - ( curalign->deepNumEdits + curshift->cost )"<<endl;
-				cerr << "Details of gains : gain = ("<<cur_best_align->deepNumEdits << "+" << cur_best_shift_cost << ") - (" << curalign->deepNumEdits << "+" <<  curshift->cost << ")"<<endl;
-			    }
-			    else
-			    {
+// 			    if (m_deeper)
+// 			    {
+// 				cerr << "Details of gains : gain = ( cur_best_align->deepNumEdits + cur_best_shift_cost ) - ( curalign->deepNumEdits + curshift->cost )"<<endl;
+// 				cerr << "Details of gains : gain = ("<<cur_best_align->deepNumEdits << "+" << cur_best_shift_cost << ") - (" << curalign->deepNumEdits << "+" <<  curshift->cost << ")"<<endl;
+// 			    }
+// 			    else
+// 			    {
 				cerr << "Details of gains : gain = ( cur_best_align->numEdits + cur_best_shift_cost ) - ( curalign->numEdits + curshift->cost )"<<endl;
 				cerr << "Details of gains : gain = ("<<cur_best_align->numEdits << "+" << cur_best_shift_cost << ") - (" << curalign->numEdits << "+" <<  curshift->cost << ")"<<endl;
-			    }
+// 			    }
 			    cerr << "" << curalign->toString() << "\n" << endl;
 			    cerr << "END DEBUG " << endl;
 			}
@@ -1535,10 +1535,10 @@ namespace TERCpp
         }
         poss_shifts = calculerPermutations ( cur, ref, rloc, med_align, herr, rerr, ralign  );
         float curerr = med_align.numEdits;
-	if (m_deeper)
-	{
-	    curerr = med_align.deepNumEdits;
-	}
+// 	if (m_deeper)
+// 	{
+// 	    curerr = med_align.deepNumEdits;
+// 	}
         if ( PRINT_DEBUG )
         {
             cerr << "BEGIN DEBUG : terCalc::findBestShift :" << endl;
@@ -1565,10 +1565,10 @@ namespace TERCpp
             }
             /* Consider shifts of length i+1 */
             float curfix = curerr - ( cur_best_shift_cost + cur_best_align->numEdits );
-	    if (m_deeper)
-	    {
-		curfix = curerr - ( cur_best_shift_cost + cur_best_align->deepNumEdits );
-	    }
+// 	    if (m_deeper)
+// 	    {
+// 		curfix = curerr - ( cur_best_shift_cost + cur_best_align->deepNumEdits );
+// 	    }
             float maxfix = ( 2 * ( 1 + i ) );
 	    if ( ( curfix > maxfix ) || ( ( cur_best_shift_cost != 0 ) && ( curfix == maxfix ) ) )
 	    {
@@ -1579,10 +1579,10 @@ namespace TERCpp
 		for ( s = 0; s < ( int ) ( poss_shifts->at ( i ) ).size(); s++ )
 		{
 		    curfix = curerr - ( cur_best_shift_cost + cur_best_align->numEdits );
-		    if (m_deeper)
-		    {
-			curfix = curerr - ( cur_best_shift_cost + cur_best_align->deepNumEdits );
-		    }
+// 		    if (m_deeper)
+// 		    {
+// 			curfix = curerr - ( cur_best_shift_cost + cur_best_align->deepNumEdits );
+// 		    }
 		    if ( ( curfix > maxfix ) || ( ( cur_best_shift_cost != 0 ) && ( curfix == maxfix ) ) )
 		    {
 			break;
@@ -1621,24 +1621,24 @@ namespace TERCpp
 
 
 			float gain = ( cur_best_align->numEdits + cur_best_shift_cost ) - ( curalign->numEdits + curshift->cost );
-			if (m_deeper)
-			{
-			    gain = ( cur_best_align->deepNumEdits + cur_best_shift_cost ) - ( curalign->deepNumEdits + curshift->cost );
-			}
+// 			if (m_deeper)
+// 			{
+// 			    gain = ( cur_best_align->deepNumEdits + cur_best_shift_cost ) - ( curalign->deepNumEdits + curshift->cost );
+// 			}
 			if ( PRINT_DEBUG )
 			{
 			    cerr << "BEGIN DEBUG : terCalc::findBestShift :" << endl;
 			    cerr << "Gain for " << curshift->toString() << " is " << gain << ". (result: [" << curalign->join ( " ", shiftarr ) << "]" << endl;
-			    if (m_deeper)
-			    {
-				cerr << "Details of gains : gain = ( cur_best_align->deepNumEdits + cur_best_shift_cost ) - ( curalign->deepNumEdits + curshift->cost )"<<endl;
-				cerr << "Details of gains : gain = ("<<cur_best_align->deepNumEdits << "+" << cur_best_shift_cost << ") - (" << curalign->deepNumEdits << "+" <<  curshift->cost << ")"<<endl;
-			    }
-			    else
-			    {
+// 			    if (m_deeper)
+// 			    {
+// 				cerr << "Details of gains : gain = ( cur_best_align->deepNumEdits + cur_best_shift_cost ) - ( curalign->deepNumEdits + curshift->cost )"<<endl;
+// 				cerr << "Details of gains : gain = ("<<cur_best_align->deepNumEdits << "+" << cur_best_shift_cost << ") - (" << curalign->deepNumEdits << "+" <<  curshift->cost << ")"<<endl;
+// 			    }
+// 			    else
+// 			    {
 				cerr << "Details of gains : gain = ( cur_best_align->numEdits + cur_best_shift_cost ) - ( curalign->numEdits + curshift->cost )"<<endl;
 				cerr << "Details of gains : gain = ("<<cur_best_align->numEdits << "+" << cur_best_shift_cost << ") - (" << curalign->numEdits << "+" <<  curshift->cost << ")"<<endl;
-			    }
+// 			    }
 			    cerr << "" << curalign->toString() << "\n" << endl;
 			    cerr << "END DEBUG " << endl;
 			}

@@ -160,7 +160,14 @@ namespace TERCpp
 	{
 	    if (evalParameters.deep)
 	    {
-		sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "NumEr", "D-NumEr", "AvNumWd", "WER", "D-WER");
+		if (evalParameters.deeper)
+		{
+		    sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "D-NumEr", "NumEr", "AvNumWd", "D-WER", "WER");
+		}
+		else
+		{
+		    sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "NumEr", "D-NumEr", "AvNumWd", "WER", "D-WER");
+		}
 	    }
 	    else
 	    {
@@ -171,7 +178,14 @@ namespace TERCpp
 	{
 	    if (evalParameters.deep)
 	    {
-		sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "NumEr", "D-NumEr", "AvNumWd", "TER", "D-TER");
+		if (evalParameters.deeper)
+		{
+		    sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "D-NumEr", "NumEr", "AvNumWd", "D-WER", "TER");
+		}
+		else
+		{
+		    sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "NumEr", "D-NumEr", "AvNumWd", "WER", "D-TER");
+		}
 	    }
 	    else
 	    {
@@ -272,19 +286,33 @@ namespace TERCpp
 
 	if (evalParameters.WER)
 	{
-	    cout << "Total WER:\t" << scoreTER ( editsResults, wordsResults );
-	    if (evalParameters.deep)
+	    if (evalParameters.deeper)
 	    {
-		cout << "\t\tTotal D-WER:\t" << scoreTER ( deepEditsResults, wordsResults );
+		cout << "Total WER:\t" << scoreTER ( deepEditsResults, wordsResults )<< "\t\tTotal D-WER:\t" << scoreTER ( editsResults, wordsResults );
+	    }
+	    else
+	    {
+		cout << "Total WER:\t" << scoreTER ( editsResults, wordsResults );
+		if (evalParameters.deep)
+		{
+		    cout << "\t\tTotal D-WER:\t" << scoreTER ( deepEditsResults, wordsResults );
+		}
 	    }
 	    cout << endl;
 	}
 	else
 	{
-	    cout << "Total TER:\t" << scoreTER ( editsResults, wordsResults );
-	    if (evalParameters.deep)
+	    if (evalParameters.deeper)
 	    {
-		cout << "\t\tTotal D-TER:\t" << scoreTER ( deepEditsResults, wordsResults );
+		cout << "Total TER:\t" << scoreTER ( deepEditsResults, wordsResults )<< "\t\tTotal D-TER:\t" << scoreTER ( editsResults, wordsResults );
+	    }
+	    else
+	    {
+		cout << "Total TER:\t" << scoreTER ( editsResults, wordsResults );
+		if (evalParameters.deep)
+		{
+		    cout << "\t\tTotal D-TER:\t" << scoreTER ( deepEditsResults, wordsResults );
+		}
 	    }
 	    cout << endl;
 	}
@@ -661,7 +689,14 @@ namespace TERCpp
 	{
 	    if (evalParameters.deep)
 	    {
-		sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "NumEr", "D-NumEr", "AvNumWd", "WER", "D-WER");
+		if (evalParameters.deeper)
+		{
+		    sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "D-NumEr", "NumEr", "AvNumWd", "D-WER", "WER");
+		}
+		else
+		{
+		    sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "NumEr", "D-NumEr", "AvNumWd", "WER", "D-WER");
+		}
 	    }
 	    else
 	    {
@@ -672,7 +707,14 @@ namespace TERCpp
 	{
 	    if (evalParameters.deep)
 	    {
-		sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "NumEr", "D-NumEr", "AvNumWd", "TER", "D-TER");
+		if (evalParameters.deeper)
+		{
+		    sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "D-NumEr", "NumEr", "AvNumWd", "D-WER", "TER");
+		}
+		else
+		{
+		    sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "NumEr", "D-NumEr", "AvNumWd", "WER", "D-TER");
+		}
 	    }
 	    else
 	    {
@@ -793,19 +835,33 @@ namespace TERCpp
 
 	if (evalParameters.WER)
 	{
-	    cout << "Total WER:\t" << scoreTER ( editsResults, wordsResults );
-	    if (evalParameters.deep)
+	    if (evalParameters.deeper)
 	    {
-		cout << "\t\tTotal D-WER:\t" << scoreTER ( deepEditsResults, wordsResults );
+		cout << "Total WER:\t" << scoreTER ( deepEditsResults, wordsResults )<< "\t\tTotal D-WER:\t" << scoreTER ( editsResults, wordsResults );
+	    }
+	    else
+	    {
+		cout << "Total WER:\t" << scoreTER ( editsResults, wordsResults );
+		if (evalParameters.deep)
+		{
+		    cout << "\t\tTotal D-WER:\t" << scoreTER ( deepEditsResults, wordsResults );
+		}
 	    }
 	    cout << endl;
 	}
 	else
 	{
-	    cout << "Total TER:\t" << scoreTER ( editsResults, wordsResults );
-	    if (evalParameters.deep)
+	    if (evalParameters.deeper)
 	    {
-		cout << "\t\tTotal D-TER:\t" << scoreTER ( deepEditsResults, wordsResults );
+		cout << "Total TER:\t" << scoreTER ( deepEditsResults, wordsResults )<< "\t\tTotal D-TER:\t" << scoreTER ( editsResults, wordsResults );
+	    }
+	    else
+	    {
+		cout << "Total TER:\t" << scoreTER ( editsResults, wordsResults );
+		if (evalParameters.deep)
+		{
+		    cout << "\t\tTotal D-TER:\t" << scoreTER ( deepEditsResults, wordsResults );
+		}
 	    }
 	    cout << endl;
 	}
