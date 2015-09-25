@@ -1,4 +1,4 @@
-tercpp Version 0.7.1
+tercpp Version 0.9.0
 
 
 - predicate :
@@ -21,9 +21,11 @@ tercpp [--tercom] [--sgml] [--debugMode] [--noTxtIds] [--printAlignments] [-s|-c
                  --debugMode    : print debug messages
                  -s or -c       : to be case sensitive
                  -P             : do not take account of punctuation
-                 --help         : print this help message.
+                 -w2v <model>   : load a model trained with word2vec to use word embeddings to find near matches.
+                 --deeper       : to be used with the option -w2v, enables to use the near matches score in the Levenshtein algorithm.
 		 --printAlignments : print all the final alignements in a separate output file
 		 --verbose	: print progress of TER calculation
+                 --help         : print this help message.
 
 the ref and hyp file format with ids is like this :
 ==================

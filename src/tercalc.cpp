@@ -7,7 +7,7 @@
  *
  * The tercpp tool and library are free software: you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by 
- * the Free Software Foundation, either version 3 of the licence, or
+ * the Free Software Foundation, either version 2.1 of the licence, or
  * (at your option) any later version.
  *
  * This program and library are distributed in the hope that it will be useful, but WITHOUT
@@ -19,17 +19,6 @@
  * along with this library; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  * **********************************/
-//
-// C++ Implementation: tercalc
-//
-// Description:
-//
-//
-// Author:  <>, (C) 2010
-//
-// Copyright: See COPYING file that comes with this distribution
-//
-//
 #include "tercalc.h"
 using namespace std;
 using namespace Tools;
@@ -232,6 +221,7 @@ namespace TERCpp
         return false;
     }
 
+// Old method.
 /*
     terAlignment terCalc::minimizeDistanceEdition ( vector< string >& hyp, vector< string >& ref, vector< vecInt >& curHypSpans )
     {
@@ -592,9 +582,8 @@ namespace TERCpp
 		    }
 		    if ( ( i < ref_size ) && ( j < hyp_size ) )
 		    {
-			l_similarity = model_distance.getDistance((char*)ref.at ( i ).c_str(), (char*)hyp.at ( j ).c_str());
+			l_similarity = model_distance.getSimilarity((char*)ref.at ( i ).c_str(), (char*)hyp.at ( j ).c_str());
 			l_erreur = 1-l_similarity; 
-// 			cerr << i << " " << j << " " << l_similarity << " " << m_threshold << endl;
 			if ( ( int ) refSpans.size() ==  0 || ( int ) hypSpans.size() ==  0 || trouverIntersection ( refSpans.at ( i ), curHypSpans.at ( j ) ) || l_similarity >= m_threshold)
 			{
 			    if ( l_similarity == 1 || ( int ) ( ref.at ( i ).compare ( hyp.at ( j ) ) ) == 0  )
@@ -617,13 +606,6 @@ namespace TERCpp
 			    }
 			    else
 			    {
-// 				if (m_deep)
-// 				{
-// 				    l_similarity = model_distance.getDistance((char*)ref.at ( i ).c_str(), (char*)hyp.at ( j ).c_str());
-// 				    l_erreur = 1-l_similarity; 
-// 	    // 			cerr << ref.at ( i ) << "\t" << hyp.at ( j ) << "\t" << l_similarity << "\t" << l_erreur <<endl;
-// 				}
-// 				cost = substitute_cost + score;
 				cost = score + l_erreur;
 				if ( ( S->at(i+1).at(j+1) < 0 ) || ( cost < S->at(i+1).at(j+1) ) )
 				{
@@ -734,7 +716,7 @@ namespace TERCpp
 			    {
 				if (m_deep)
 				{
-				    l_similarity = model_distance.getDistance((char*)ref.at ( i ).c_str(), (char*)hyp.at ( j ).c_str());
+				    l_similarity = model_distance.getSimilarity((char*)ref.at ( i ).c_str(), (char*)hyp.at ( j ).c_str());
 				    l_erreur = 1-l_similarity; 
 	    // 			cerr << ref.at ( i ) << "\t" << hyp.at ( j ) << "\t" << l_similarity << "\t" << l_erreur <<endl;
 				}
@@ -1011,12 +993,6 @@ namespace TERCpp
                         }
                         else
                         {
-// 			    if (m_deep)
-// 			    {
-// 				l_similarity = model_distance.getDistance(ref.at ( i ), hyp.at ( j ));
-// 				l_erreur = 1-l_similarity; 
-// 	// 			cerr << ref.at ( i ) << "\t" << hyp.at ( j ) << "\t" << l_similarity << "\t" << l_erreur <<endl;
-// 			    }
                             cost = substitute_cost + score;
                             if ( ( S->at(i+1).at(j+1) < 0 ) || ( cost < S->at(i+1).at(j+1) ) )
                             {

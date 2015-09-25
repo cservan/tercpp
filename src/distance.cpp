@@ -1,3 +1,24 @@
+/*********************************
+ * tercpp: an open-source Translation Edit Rate (TER) scorer tool for Machine Translation.
+ *
+ * Copyright 2010-2013, Christophe Servan, LIUM, University of Le Mans, France
+ * Copyright 2015, Christophe Servan, GETALP-LIG, University of Grenoble, France
+ * Contact: christophe.servan@gmail.com
+ *
+ * The tercpp tool and library are free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by 
+ * the Free Software Foundation, either version 2.1 of the licence, or
+ * (at your option) any later version.
+ *
+ * This program and library are distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * **********************************/
 #include "distance.h"
 using namespace std;
 namespace word2vecdistance
@@ -163,7 +184,7 @@ namespace word2vecdistance
     }
     return to_return;
   }
-  float distance::getDistance(string s1, string s2)
+  float distance::getSimilarity(string s1, string s2)
   {
     float vec1[max_size];
     float vec2[max_size];
@@ -290,12 +311,12 @@ namespace word2vecdistance
 //       }
 //       return 1.0;
   }
-  float distance::getDistanceTest(string &s1, string &s2)
+  float distance::getSimilarityTest(string &s1, string &s2)
   {
-      float vec1[max_size];
-      float vec2[max_size];
-      float len1=0;
-      float len2=0;
+//       float vec1[max_size];
+//       float vec2[max_size];
+//       float len1=0;
+//       float len2=0;
       char st1[max_w];
       char st2[max_w];
       strcpy(st1, s1.c_str());
@@ -334,16 +355,12 @@ namespace word2vecdistance
       }
       return dist;
   }
-  float distance::getDistance(char * st1, char * st2)
+  float distance::getSimilarity(char * st1, char * st2)
   {
-      float vec1[max_size];
-      float vec2[max_size];
-      float len1=0;
-      float len2=0;
-//       char st1[max_w];
-//       char st2[max_w];
-//       strcpy(st1, s1.c_str());
-//       strcpy(st2, s2.c_str());
+//       float vec1[max_size];
+//       float vec2[max_size];
+//       float len1=0;
+//       float len2=0;
       int pos1 = -1; 
       int pos2 = -1;
       b = 0;
@@ -364,7 +381,15 @@ namespace word2vecdistance
       }
       return dist;
   }
-  
+  float distance::getDistance(char * st1, char * st2)
+  {
+      return (1.0-getSimilarity(st1,st2));
+  }
+  float distance::getDistance(string st1, string st2)
+  {
+      return (1.0-getSimilarity(st1,st2));
+  }
+ 
   
   bool distance::strcompare(char* c1, char* c2)
   {
@@ -406,43 +431,22 @@ namespace word2vecdistance
   }
   /* Adds a word to the vocabulary */
   void distance::addWordToHash(char *word, int l_pos) {    
-//     unsigned int hash, length = strlen(word) + 1;
-// //     struct vocab_word *vocab = vocabs[lang_id];
-// //     int *vocab_hash = vocab_hashes[lang_id];      // array of *ints
-//     
-//     if (length > max_w) length = max_w;
-//     vocab[vocab_size].word = calloc(length, sizeof(char));
-//     strcpy(vocab[vocab_size].word, word);
-//     vocab[vocab_size].cn = 0;
-//     vocab_size++;
-//     // Reallocate memory if needed
-//     if (vocab_size + 2 >= vocab_max_size) {
-//       vocab_max_size += 1000;
-//       vocab = (struct vocab_word *)realloc(vocab, vocab_max_size * sizeof(struct vocab_word)); 
-//     }
     unsigned int hash = getWordHash(word);
     while (vocab_hash[hash] != -1) hash = (hash + 1) % vocab_hash_size;
     vocab_hash[hash] = l_pos;
-//     return l_pos;
   }
   void distance::fillHash()
   {
       int c;
       vocab_hash = (int*)calloc(vocab_hash_size, sizeof(int));
-//       cerr << "Size of hash vocab : " << vocab_hash_size <<endl;
       for (c = 0; c < vocab_hash_size; c++)
       {
 	  vocab_hash[c] = -1;
       }
-//       cerr << "Size of vocab : " << words <<endl;
       for (c = 0; c < words; c++)
       {
 	 addWordToHash(&vocab[c * max_w], c);
-// 	cerr << ".";
-// 	 if (c % (words / 100) == 0)
-// 	   cerr << "|";
       }
-//       cerr << endl;
   }
 
 }
