@@ -36,7 +36,7 @@ link_directories(/home/servan/Tools/myLibs/icu/lib)
 include_directories(/home/servan/Tools/myLibs/icu/include)
 
 #add definitions, compiler switches, etc.
-ADD_DEFINITIONS(-Wall -O2 -static)
+ADD_DEFINITIONS(-Wall -O2 -static -std=c++0x)
 
 #list all source files here
 add_subdirectory(src)

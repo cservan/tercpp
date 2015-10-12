@@ -30,6 +30,7 @@
 #include "sgmlDocument.h"
 #include "distance.h"
 #include <boost/thread/thread.hpp>
+#include "word2vec.h"
 
 using namespace Tools;
 namespace TERCpp
@@ -63,6 +64,7 @@ namespace TERCpp
 	    SGMLDocument referencesSGML;
             SGMLDocument hypothesisSGML;
 	    word2vecdistance::distance * m_distance;
+	    MonolingualModel * m_distancecpp;
 
 
     };

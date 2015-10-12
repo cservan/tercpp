@@ -835,9 +835,12 @@ namespace Tools
 	to_return.subCost=p.subCost;
 	to_return.shiftCost=p.shiftCost;
 	to_return.deep=p.deep;
+	to_return.deepcpp=p.deepcpp;
 	to_return.deeper=p.deeper;
 	to_return.threshold=p.threshold;
 	to_return.W2VModel=p.W2VModel;
+	to_return.W2VModelcpp=p.W2VModelcpp;
+	to_return.BivecModelcpp=p.BivecModelcpp;
 	to_return.threads=p.threads;
         return to_return;
     }
@@ -866,9 +869,12 @@ namespace Tools
         s << "subCost = " << p.subCost << endl;
         s << "shiftCost = " << p.shiftCost << endl;
         s << "deep = " << p.deep << endl;
+        s << "deepcpp = " << p.deepcpp << endl;
         s << "deeper = " << p.deeper << endl;
         s << "threshold = " << p.threshold << endl;
         s << "W2VModel = " << p.W2VModel << endl;
+        s << "W2VModelcpp = " << p.W2VModelcpp << endl;
+        s << "BivecModelcpp = " << p.BivecModelcpp << endl;
 	s << "threads" << p.threads<< endl;
         return s.str();
 

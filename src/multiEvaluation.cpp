@@ -72,6 +72,11 @@ namespace TERCpp
 	{
 	    m_distance = new word2vecdistance::distance(evalParameters.W2VModel);
 	}
+	if (evalParameters.deepcpp)
+	{
+	    m_distancecpp = new MonolingualModel();
+	    m_distancecpp->load(evalParameters.W2VModelcpp);
+	}
 // 	referencesTxt=new multiTxtDocument();
 // 	hypothesisTxt=new documentStructure();
     }
@@ -158,7 +163,7 @@ namespace TERCpp
         char outputCharBuffer[200];
         if (evalParameters.WER)
 	{
-	    if (evalParameters.deep)
+	    if (evalParameters.deep || evalParameters.deepcpp)
 	    {
 		if (evalParameters.deeper)
 		{
@@ -176,7 +181,7 @@ namespace TERCpp
 	}
 	else
 	{
-	    if (evalParameters.deep)
+	    if (evalParameters.deep || evalParameters.deepcpp)
 	    {
 		if (evalParameters.deeper)
 		{
@@ -227,7 +232,7 @@ namespace TERCpp
             tot_wds += l_result.averageWords;
 
             char outputCharBufferTmp[200];
-	    if (evalParameters.deep)
+	    if (evalParameters.deep || evalParameters.deepcpp)
 	    {
 		sprintf(outputCharBufferTmp, "%19s | %4d | %4d | %4d | %4d | %4d | %6.1f | %8.3f | %8.3f | %8.3f | %8.3f",(l_id+":"+bestDocId).c_str(), l_result.numIns, l_result.numDel, l_result.numSub, l_result.numSft, l_result.numWsf, l_result.numEdits, l_result.deepNumEdits, l_result.averageWords, l_result.scoreAv()*100.0, l_result.deepScoreAv()*100.0);
 		outputSum<< outputCharBufferTmp<<endl;
@@ -271,7 +276,7 @@ namespace TERCpp
 		}
 // 		outputAlignments << "ALIG:"<< "\t"<<l_result.toString()<<"\t"<<endl;
 		outputAlignments << endl;
-		if (evalParameters.deep)
+		if (evalParameters.deep || evalParameters.deepcpp)
 		{  
 		    outputAlignments << "Score: "<< l_result.deepScoreAv()*100 << " ( "<< l_result.deepNumEdits << " / " <<  l_result.averageWords<< " )" << endl << endl;
 		}
@@ -293,7 +298,7 @@ namespace TERCpp
 	    else
 	    {
 		cout << "Total WER:\t" << scoreTER ( editsResults, wordsResults );
-		if (evalParameters.deep)
+		if (evalParameters.deep || evalParameters.deepcpp)
 		{
 		    cout << "\t\tTotal D-WER:\t" << scoreTER ( deepEditsResults, wordsResults );
 		}
@@ -309,7 +314,7 @@ namespace TERCpp
 	    else
 	    {
 		cout << "Total TER:\t" << scoreTER ( editsResults, wordsResults );
-		if (evalParameters.deep)
+		if (evalParameters.deep || evalParameters.deepcpp)
 		{
 		    cout << "\t\tTotal D-TER:\t" << scoreTER ( deepEditsResults, wordsResults );
 		}
@@ -318,7 +323,7 @@ namespace TERCpp
 	}
 	char outputCharBufferTmp[200];
         outputSum << "--------------------------------------------------------------------------------------------------------------" << endl;
-	if (evalParameters.deep)
+	if (evalParameters.deep || evalParameters.deepcpp)
 	{
 	    sprintf ( outputCharBufferTmp, "%19s | %4d | %4d | %4d | %4d | %4d | %6.1f | %8.3f | %8.3f | %8.3f | %8.3f", "TOTAL", tot_ins, tot_del, tot_sub, tot_sft, tot_wsf, tot_err, tot_deeperr, tot_wds, tot_err*100.0 / tot_wds , tot_deeperr*100.0 / tot_wds );
 	}
@@ -364,7 +369,7 @@ namespace TERCpp
 		l_evalTER = new terCalc();
 		l_evalTER->setDebugMode(evalParameters.debugMode);
 		l_evalTER->setCosts(evalParameters);
-		if (evalParameters.deep)
+		if (evalParameters.deep || evalParameters.deepcpp)
 		{
 		      l_evalTER->setDeep(true);
 		      l_evalTER->m_deeper = evalParameters.deeper;
@@ -385,9 +390,16 @@ namespace TERCpp
     // 	    if ((evalParameters.WER) || (((float)l_vhyp.size() / (float)l_vref.size()) < l_seuil)) 
 		if (evalParameters.WER) 
 		{
-		    if (evalParameters.deep)
+		    if (evalParameters.deep || evalParameters.deepcpp)
 		    {
-			l_result = l_evalTER->WERCalculation ( l_vhyp, l_vref, (*m_distance));
+			if (evalParameters.deepcpp)
+			{
+			    l_result = l_evalTER->WERCalculation ( l_vhyp, l_vref, (*m_distancecpp));
+			}
+			else
+			{
+			    l_result = l_evalTER->WERCalculation ( l_vhyp, l_vref, (*m_distance));
+			}
 		    }
 		    else
 		    {
@@ -396,9 +408,16 @@ namespace TERCpp
 		}
 		else
 		{
-		    if (evalParameters.deep)
+		    if (evalParameters.deep || evalParameters.deepcpp)
 		    {
-			l_result = l_evalTER->TER ( l_vhyp, l_vref, (*m_distance));
+			if (evalParameters.deepcpp)
+			{
+			    l_result = l_evalTER->TER ( l_vhyp, l_vref, (*m_distancecpp));
+			}
+			else
+			{
+			    l_result = l_evalTER->TER ( l_vhyp, l_vref, (*m_distance));
+			}
 		    }
 		    else
 		    {
@@ -523,7 +542,7 @@ namespace TERCpp
 	terCalc * l_evalTER = new terCalc();
 	l_evalTER->setDebugMode(evalParameters.debugMode);
 	l_evalTER->setCosts(evalParameters);
-	if (evalParameters.deep)
+	if (evalParameters.deep || evalParameters.deepcpp)
 	{
 	      l_evalTER->setDeep(true);
 // 	      l_evalTER->setW2VModel(m_distance);
@@ -536,9 +555,16 @@ namespace TERCpp
 	l_vref=segStructReference->getContent();
 	if (evalParameters.WER) 
 	{
-	    if (evalParameters.deep)
+	    if (evalParameters.deep || evalParameters.deepcpp)
 	    {
-		l_result = l_evalTER->WERCalculation ( l_vhyp, l_vref, (*m_distance));
+		if (evalParameters.deepcpp)
+		{
+		    l_result = l_evalTER->WERCalculation ( l_vhyp, l_vref, (*m_distancecpp));
+		}
+		else
+		{
+		    l_result = l_evalTER->WERCalculation ( l_vhyp, l_vref, (*m_distance));
+		}
 	    }
 	    else
 	    {
@@ -547,9 +573,16 @@ namespace TERCpp
 	}
 	else
 	{
-	    if (evalParameters.deep)
+	    if (evalParameters.deep || evalParameters.deepcpp)
 	    {
-		l_result = l_evalTER->TER ( l_vhyp, l_vref, (*m_distance));
+		if (evalParameters.deepcpp)
+		{
+		    l_result = l_evalTER->TER ( l_vhyp, l_vref, (*m_distancecpp));
+		}
+		else
+		{
+		    l_result = l_evalTER->TER ( l_vhyp, l_vref, (*m_distance));
+		}
 	    }
 	    else
 	    {
@@ -687,7 +720,7 @@ namespace TERCpp
 	}
         if (evalParameters.WER)
 	{
-	    if (evalParameters.deep)
+	    if (evalParameters.deep || evalParameters.deepcpp)
 	    {
 		if (evalParameters.deeper)
 		{
@@ -705,7 +738,7 @@ namespace TERCpp
 	}
 	else
 	{
-	    if (evalParameters.deep)
+	    if (evalParameters.deep || evalParameters.deepcpp)
 	    {
 		if (evalParameters.deeper)
 		{
@@ -755,7 +788,7 @@ namespace TERCpp
 		tot_wds += l_result.averageWords;
 
 		char outputCharBufferTmp[200];
-		if (evalParameters.deep)
+		if (evalParameters.deep || evalParameters.deepcpp)
 		{
 		    sprintf(outputCharBufferTmp, "%19s | %4d | %4d | %4d | %4d | %4d | %6.1f | %8.3f | %8.3f | %8.3f | %8.3f",(l_id+":"+bestDocId).c_str(), l_result.numIns, l_result.numDel, l_result.numSub, l_result.numSft, l_result.numWsf, l_result.numEdits, l_result.deepNumEdits, l_result.averageWords, l_result.scoreAv()*100.0, l_result.deepScoreAv()*100.0);
 		    outputSum<< outputCharBufferTmp<<endl;
@@ -794,7 +827,7 @@ namespace TERCpp
 		    }
     // 		outputAlignments << "ALIG:"<< "\t"<<l_result.toString()<<"\t"<<endl;
 		    outputAlignments << endl;
-		    if (evalParameters.deep)
+		    if (evalParameters.deep || evalParameters.deepcpp)
 		    {  
 			outputAlignments << "Score: "<< l_result.deepScoreAv()*100 << " ( "<< l_result.deepNumEdits << " / " <<  l_result.averageWords<< " )" << endl << endl;
 		    }
@@ -842,7 +875,7 @@ namespace TERCpp
 	    else
 	    {
 		cout << "Total WER:\t" << scoreTER ( editsResults, wordsResults );
-		if (evalParameters.deep)
+		if (evalParameters.deep || evalParameters.deepcpp)
 		{
 		    cout << "\t\tTotal D-WER:\t" << scoreTER ( deepEditsResults, wordsResults );
 		}
@@ -858,7 +891,7 @@ namespace TERCpp
 	    else
 	    {
 		cout << "Total TER:\t" << scoreTER ( editsResults, wordsResults );
-		if (evalParameters.deep)
+		if (evalParameters.deep || evalParameters.deepcpp)
 		{
 		    cout << "\t\tTotal D-TER:\t" << scoreTER ( deepEditsResults, wordsResults );
 		}
@@ -867,7 +900,7 @@ namespace TERCpp
 	}
 	char outputCharBufferTmp[200];
         outputSum << "--------------------------------------------------------------------------------------------------------------" << endl;
-	if (evalParameters.deep)
+	if (evalParameters.deep || evalParameters.deepcpp)
 	{
 	    sprintf ( outputCharBufferTmp, "%19s | %4d | %4d | %4d | %4d | %4d | %6.1f | %8.3f | %8.3f | %8.3f | %8.3f", "TOTAL", tot_ins, tot_del, tot_sub, tot_sft, tot_wsf, tot_err, tot_deeperr, tot_wds, tot_err*100.0 / tot_wds , tot_deeperr*100.0 / tot_wds );
 	}

@@ -73,7 +73,10 @@ struct param
     float shiftCost;
     float threshold;
     string W2VModel;
+    string W2VModelcpp;
+    string BivecModelcpp;
     bool deep;
+    bool deepcpp;
     bool deeper;
 };
 // param = { false, "","","","" };

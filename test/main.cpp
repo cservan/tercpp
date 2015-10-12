@@ -81,7 +81,10 @@ void readCommandLineArguments ( unsigned int argc, char *argv[] , param & p)
     p.subCost=1.0;
     p.shiftCost=1.0;
     p.W2VModel = "";
+    p.W2VModelcpp = "";
+    p.BivecModelcpp = "";
     p.deep = false;
+    p.deepcpp = false;
     p.deeper = false;
     p.threshold = 0.9;
     p.threads = 1;
@@ -142,6 +145,16 @@ void readCommandLineArguments ( unsigned int argc, char *argv[] , param & p)
         {
             p.W2VModel = infos;
 	    p.deep = true;
+        }
+        else if ( s.compare ( "-w2vcpp" ) == 0 )
+        {
+            p.W2VModelcpp = infos;
+	    p.deepcpp = true;
+        }
+        else if ( s.compare ( "-biveccpp" ) == 0 )
+        {
+            p.BivecModelcpp = infos;
+// 	    p.deepcpp = true;
         }
         else if ( s.compare ( "--deeper" ) == 0 )
         {
