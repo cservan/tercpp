@@ -49,6 +49,8 @@ SET(tercpp_SRCS
    ${CMAKE_SOURCE_DIR}/src/documentStructure.cpp
    ${CMAKE_SOURCE_DIR}/src/multiEvaluation.cpp
    ${CMAKE_SOURCE_DIR}/src/distance.cpp
+   ${CMAKE_SOURCE_DIR}/src/bivec.cpp
+   ${CMAKE_SOURCE_DIR}/src/word2vec.cpp
 )
 
 add_executable(tercpp.0.9 ${tercpp_SRCS})
