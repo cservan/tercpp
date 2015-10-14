@@ -2884,6 +2884,7 @@ namespace TERCpp
         }
         NBR_PERMUTS_CONSID++;
 	
+	
         if ( PRINT_DEBUG )
         {
 	    cerr << "nwords" << join(" ",nwords) << endl;
