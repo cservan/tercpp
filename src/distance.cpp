@@ -95,7 +95,7 @@ namespace word2vecdistance
     cerr << "finished!" <<endl;
   }
 
-
+/*
   vector< pair< string, float > > distance::recherche(string s)
   {
     vector< pair< string, float > > to_return;
@@ -183,7 +183,7 @@ namespace word2vecdistance
       to_return.push_back(l_p);
     }
     return to_return;
-  }
+  }*/
   float distance::getSimilarity(string s1, string s2)
   {
     float vec1[max_size];

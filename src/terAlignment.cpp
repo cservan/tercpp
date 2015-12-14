@@ -328,14 +328,25 @@ vector< terShift > terAlignment::updateShifts()
       {
 	  terShift l_terShift ;
 	  l_terShift.set(allshifts.at(l_i));
+	  if (! l_terShift.leftShift())
+	  {
+// 	      cerr << l_terShift.end << endl;
+// 	      cerr << l_terShift.start << endl;
+// 	      cerr << l_terShift.newloc << endl;
+// 	      cerr << l_terShift.moveto << endl;
+	      l_terShift.moveto = l_terShift.moveto - abs(l_terShift.end - l_terShift.start ) + 1;
+	      l_terShift.newloc = l_terShift.moveto ; 
+// 	      l_terShift.newloc = l_terShift.newloc - abs(l_terShift.end - l_terShift.start );
+	  }
+	  else
 // 	  l_terShift.moveto = l_terShift.newloc ;
-	  if (l_terShift.moveto <= l_terShift.start)
+// 	  if (l_terShift.moveto <= l_terShift.start)
 	  {
 		l_terShift.moveto = l_terShift.newloc ;
 	  }
-	  else
-	  {
-	      l_terShift.moveto = l_terShift.newloc - abs(l_terShift.end - l_terShift.start );
+// 	  else
+// 	  {
+// 	      l_terShift.moveto = l_terShift.newloc - abs(l_terShift.end - l_terShift.start );
 // 	      if (l_terShift.roff == -1)
 // 	      {
 // 		if ((l_terShift.end - l_terShift.start) > 0)
@@ -372,12 +383,18 @@ vector< terShift > terAlignment::updateShifts()
 // 		      }
 // 		  }
 // 	      }
-	  }
+// 	  }
 	  if (l_terShift.moveto == -1)
 	  {
 	    l_terShift.moveto = 0;
+	    l_terShift.newloc=l_terShift.moveto;
 	  }
-	  l_terShift.newloc=l_terShift.moveto;
+	  if (l_terShift.moveto == (int)hyp.size())
+	  {
+	    l_terShift.moveto = (int)hyp.size() - 1 ;
+	    l_terShift.newloc=l_terShift.moveto;
+	  }
+// 	  l_terShift.newloc=l_terShift.moveto;
 	  to_return.push_back(l_terShift);
       }
 //       return to_return;
