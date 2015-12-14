@@ -7,7 +7,7 @@
  *
  * The tercpp tool and library are free software: you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by 
- * the Free Software Foundation, either version 2.1 of the licence, or
+ * the Free Software Foundation, either version 3 of the licence, or
  * (at your option) any later version.
  *
  * This program and library are distributed in the hope that it will be useful, but WITHOUT
@@ -29,15 +29,15 @@ namespace Tools
     string vectorToString ( vector<string> vec )
     {
         string retour ( "" );
-        for ( vector<string>::iterator vecIter = vec.begin();vecIter != vec.end(); vecIter++ )
+	for ( int vecIter = 0; vecIter < (int)vec.size(); vecIter++ )
         {
-            if ( vecIter == vec.begin() )
+            if ( vecIter == 0 )
             {
-                retour += ( *vecIter );
+                retour +=  vec.at(vecIter);
             }
             else
             {
-                retour += "\t" + ( *vecIter );
+                retour += "\t" + vec.at(vecIter);
             }
         }
         return retour;
@@ -46,15 +46,15 @@ namespace Tools
     {
         stringstream retour;
 	retour.str("");
-        for ( vector<char>::iterator vecIter = vec.begin();vecIter != vec.end(); vecIter++ )
+	for ( int vecIter = 0;vecIter < (int)vec.size(); vecIter++ )
         {
-            if ( vecIter == vec.begin() )
+            if ( vecIter == 0 )
             {
-                retour << ( *vecIter );
+                retour << vec.at(vecIter);
             }
             else
             {
-                retour << "\t" << ( *vecIter );
+                retour << "\t" << vec.at(vecIter);
             }
         }
         return retour.str();
@@ -63,15 +63,15 @@ namespace Tools
     {
         stringstream retour;
 	retour.str("");
-        for ( vector<int>::iterator vecIter = vec.begin();vecIter != vec.end(); vecIter++ )
+	for ( int vecIter = 0;vecIter < (int)vec.size(); vecIter++ )
         {
-            if ( vecIter == vec.begin() )
+            if ( vecIter == 0 )
             {
-                retour << ( *vecIter );
+                retour << vec.at(vecIter);
             }
             else
             {
-                retour << "\t" << ( *vecIter );
+                retour << "\t" << vec.at(vecIter);
             }
         }
         return retour.str();
@@ -80,15 +80,15 @@ namespace Tools
     {
         stringstream retour;
 	retour.str("");
-        for ( vector<int>::iterator vecIter = vec->begin();vecIter != vec->end(); vecIter++ )
+	for ( int vecIter = 0;vecIter < (int)vec->size(); vecIter++ )
         {
-            if ( vecIter == vec->begin() )
+            if ( vecIter == 0 )
             {
-                retour << ( *vecIter );
+                retour << vec->at(vecIter);
             }
             else
             {
-                retour << "\t" << ( *vecIter );
+                retour << "\t" << vec->at(vecIter);
             }
         }
         return retour.str();
@@ -97,53 +97,51 @@ namespace Tools
     string vectorToString ( vector< string > vec, string s )
     {
         string retour ( "" );
-        for ( vector<string>::iterator vecIter = vec.begin();vecIter != vec.end(); vecIter++ )
+	for ( int vecIter = 0;vecIter < (int)vec.size(); vecIter++ )
         {
-            if ( vecIter == vec.begin() )
+            if ( vecIter == 0 )
             {
-                retour += ( *vecIter );
+                retour += vec.at(vecIter);
             }
             else
             {
-                retour += s + ( *vecIter );
+                retour += s + vec.at(vecIter);
             }
         }
         return retour;
-
     }
 
     string vectorToString ( vector< char > vec, string s )
     {
         stringstream retour;
 	retour.str("");
-        for ( vector<char>::iterator vecIter = vec.begin();vecIter != vec.end(); vecIter++ )
+	for ( int vecIter = 0;vecIter < (int)vec.size(); vecIter++ )
         {
-            if ( vecIter == vec.begin() )
+            if ( vecIter == 0 )
             {
-                retour << ( *vecIter );
+                retour << vec.at(vecIter);
             }
             else
             {
-                retour << s << ( *vecIter );
+                retour << s << vec.at(vecIter);
             }
         }
         return retour.str();
-
     }
 
     string vectorToString ( vector< int > vec, string s )
     {
         stringstream retour;
 	retour.str("");
-        for ( vector<int>::iterator vecIter = vec.begin();vecIter != vec.end(); vecIter++ )
+	for ( int vecIter = 0;vecIter < (int)vec.size(); vecIter++ )
         {
-            if ( vecIter == vec.begin() )
+            if ( vecIter == 0 )
             {
-                retour << ( *vecIter );
+                retour << vec.at(vecIter);
             }
             else
             {
-                retour <<  s << ( *vecIter );
+                retour <<  s << vec.at(vecIter);
             }
         }
         return retour.str();
@@ -154,15 +152,15 @@ namespace Tools
     {
         stringstream retour;
 	retour.str("");
-        for ( vector<bool>::iterator vecIter = vec.begin();vecIter != vec.end(); vecIter++ )
+	for ( int vecIter = 0;vecIter < (int)vec.size(); vecIter++ )
         {
-            if ( vecIter == vec.begin() )
+            if ( vecIter == 0 )
             {
-                retour << ( *vecIter );
+                retour << vec.at(vecIter);
             }
             else
             {
-                retour <<  s << ( *vecIter );
+                retour <<  s << vec.at(vecIter);
             }
         }
         return retour.str();
@@ -386,13 +384,14 @@ namespace Tools
         vector<string> to_return;
         string to_push ( "" );
         bool pushed = false;
-        string::iterator sIt;
-        for ( sIt = s.begin(); sIt < s.end(); sIt++ )
+        int sIt;
+// 	for ( sIt = 0; sIt < (int)s.size(); sIt++ )
+        for ( sIt = 0; sIt < (int)s.size(); sIt++ )
         {
             pushed = false;
-            for ( string::iterator sTok = tok.begin(); sTok < tok.end(); sTok++ )
+            for ( int sTok = 0; sTok < (int)tok.size(); sTok++ )
             {
-                if ( ( *sIt ) == ( *sTok ) )
+                if ( s.at(sIt) == tok.at( sTok ) )
                 {
                     to_return.push_back ( to_push );
                     to_push = "";
@@ -401,10 +400,14 @@ namespace Tools
             }
             if ( !pushed )
             {
-                to_push.push_back ( ( *sIt ) );
+                to_push.push_back ( s.at(sIt) );
             }
         }
-        to_return.push_back ( to_push );
+        if ( ( int ) to_push.length() > 0 )
+        {
+                to_return.push_back ( to_push );
+	}
+//        to_return.push_back ( to_push );
         return to_return;
     }
     vector<int> stringToVectorInt ( string s, string tok )
@@ -412,13 +415,13 @@ namespace Tools
         vector<int> to_return;
         string to_push ( "" );
         bool pushed = false;
-        string::iterator sIt;
-        for ( sIt = s.begin(); sIt < s.end(); sIt++ )
+        int sIt;
+        for ( sIt = 0; sIt < (int)s.size(); sIt++ )
         {
             pushed = false;
-            for ( string::iterator sTok = tok.begin(); sTok < tok.end(); sTok++ )
+            for ( int sTok = 0; sTok < (int)tok.size(); sTok++ )
             {
-                if ( ( *sIt ) == ( *sTok ) )
+                if ( s.at(sIt) == tok.at( sTok ) )
                 {
                     if ( ( int ) to_push.length() > 0 )
                     {
@@ -430,7 +433,7 @@ namespace Tools
             }
             if ( !pushed )
             {
-                to_push.push_back ( ( *sIt ) );
+                to_push.push_back ( s.at(sIt) );
             }
         }
         if ( ( int ) to_push.length() > 0 )
@@ -444,13 +447,13 @@ namespace Tools
         vector<float> to_return;
         string to_push ( "" );
         bool pushed = false;
-        string::iterator sIt;
-        for ( sIt = s.begin(); sIt < s.end(); sIt++ )
+        int sIt;
+        for ( sIt = 0; sIt < (int)s.size(); sIt++ )
         {
             pushed = false;
-            for ( string::iterator sTok = tok.begin(); sTok < tok.end(); sTok++ )
+            for ( int sTok = 0; sTok < (int)tok.size(); sTok++ )
             {
-                if ( ( *sIt ) == ( *sTok ) )
+                if ( s.at(sIt) == tok.at( sTok ) )
                 {
                     if ( ( int ) to_push.length() > 0 )
                     {
@@ -462,7 +465,7 @@ namespace Tools
             }
             if ( !pushed )
             {
-                to_push.push_back ( ( *sIt ) );
+                to_push.push_back ( s.at(sIt) );
             }
         }
         if ( ( int ) to_push.length() > 0 )
@@ -835,13 +838,12 @@ namespace Tools
 	to_return.subCost=p.subCost;
 	to_return.shiftCost=p.shiftCost;
 	to_return.deep=p.deep;
-	to_return.deepcpp=p.deepcpp;
 	to_return.deeper=p.deeper;
-	to_return.threshold=p.threshold;
+	to_return.deepcpp=p.deepcpp;
 	to_return.W2VModel=p.W2VModel;
 	to_return.W2VModelcpp=p.W2VModelcpp;
-	to_return.BivecModelcpp=p.BivecModelcpp;
 	to_return.threads=p.threads;
+	to_return.threshold=p.threshold;
         return to_return;
     }
     string printParams ( param p )
@@ -868,14 +870,13 @@ namespace Tools
         s << "delCost = " << p.delCost << endl;
         s << "subCost = " << p.subCost << endl;
         s << "shiftCost = " << p.shiftCost << endl;
-        s << "deep = " << p.deep << endl;
-        s << "deepcpp = " << p.deepcpp << endl;
-        s << "deeper = " << p.deeper << endl;
-        s << "threshold = " << p.threshold << endl;
-        s << "W2VModel = " << p.W2VModel << endl;
-        s << "W2VModelcpp = " << p.W2VModelcpp << endl;
-        s << "BivecModelcpp = " << p.BivecModelcpp << endl;
-	s << "threads" << p.threads<< endl;
+	s << "deep = " << p.deep << endl;
+	s << "deepcpp = " << p.deepcpp << endl;
+	s << "deeper = " << p.deeper << endl;
+	s << "W2VModel = " << p.W2VModel<< endl;
+	s << "W2VModelcpp = " << p.W2VModelcpp<< endl;
+	s << "threads = " << p.threads<< endl;
+	s << "threshold = " << p.threshold<< endl;
         return s.str();
 
     }

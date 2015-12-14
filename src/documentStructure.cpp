@@ -76,10 +76,12 @@ namespace TERCpp
 
     void documentStructure::addSegments ( segmentStructure s )
     {
+	l_hash.insert(pair < string , int>(s.getSegId(),(int)seg.size()));
         seg.push_back ( s );
     }
     void documentStructure::addSegments ( string id, string text )
     {
+	l_hash.insert(pair < string , int>(id,(int)seg.size()));
         segmentStructure tmp_seg ( id, text );
         seg.push_back ( tmp_seg );
     }
@@ -98,13 +100,9 @@ namespace TERCpp
 
     segmentStructure* documentStructure::getSegment ( string id )
     {
-        for ( int i = 0; i < ( int ) seg.size(); i++ )
-        {
-            if ( id.compare ( seg.at ( i ).getSegId() ) == 0 )
-            {
-                return & ( seg.at ( i ) );
-            }
-        }
+	map < string, int >::iterator l_it = l_hash.find(id);
+	if (l_it != l_hash.end()) return & ( seg.at ( l_it->second ) );
+	//else
         cerr << "ERROR : documentStructure::getSegment : Segment " << id << " does not exist" <<endl;
         cerr << "Segment size " << seg.size()<< endl;
 	for (int i=0;i<(int)seg.size(); i++)
@@ -112,6 +110,21 @@ namespace TERCpp
 	  cerr <<seg.at(i).getSegId()<<endl;
 	}
 	exit(0);
+	
+//         for ( int i = 0; i < ( int ) seg.size(); i++ )
+//         {
+//             if ( id.compare ( seg.at ( i ).getSegId() ) == 0 )
+//             {
+//                 return & ( seg.at ( i ) );
+//             }
+//         }
+//         cerr << "ERROR : documentStructure::getSegment : Segment " << id << " does not exist" <<endl;
+//         cerr << "Segment size " << seg.size()<< endl;
+// 	for (int i=0;i<(int)seg.size(); i++)
+// 	{
+// 	  cerr <<seg.at(i).getSegId()<<endl;
+// 	}
+// 	exit(0);
     }
     int documentStructure::getSize()
     {

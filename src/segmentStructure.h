@@ -39,6 +39,7 @@ namespace TERCpp
     class segmentStructure
     {
         private:
+            size_t hashSegId;
             string segId;
             vecString content;
             terAlignment evaluation;
@@ -64,7 +65,7 @@ namespace TERCpp
 // 	  {
 // 	    return segId;
 // 	  }
-            vecString getContent();
+            vecString& getContent();
 // 	  {
 // 	    return content;
 // 	  }

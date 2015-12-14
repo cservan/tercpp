@@ -24,7 +24,7 @@
 using namespace std;
 namespace TERCpp
 {
-    vecString segmentStructure::getContent()
+    vecString& segmentStructure::getContent()
     {
         return content;
     }

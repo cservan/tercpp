@@ -55,6 +55,7 @@ namespace TERCpp
             void launchSGMLEvaluation();
             void evaluate ( documentStructure & docStructReference, documentStructure & docStructhypothesis );
             void subEvaluate ( segmentStructure * segStructReference, segmentStructure * segStructHypothesis);
+            void subEvaluateBis ( documentStructure * docStructReference, documentStructure * docStructhypothesis , string * segId);
             string scoreTER ( vector<float> numEdits, vector<float> numWords );
 	    
         private:

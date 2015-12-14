@@ -573,6 +573,8 @@ namespace TERCpp
 	delete(S);
 	delete(D);
 	delete(P);
+	string refWord="";
+	string hypWord="";
 	S = new vector < vector < float > >(ref_size+1, std::vector<float>(hyp_size+1,-1.0));
 	D = new vector < vector < float > >(ref_size+1, std::vector<float>(hyp_size+1,-1.0));
 	P = new vector < vector < char > >(ref_size+1, std::vector<char>(hyp_size+1,'0'));
@@ -626,11 +628,13 @@ namespace TERCpp
 		    }
 		    if ( ( i < ref_size ) && ( j < hyp_size ) )
 		    {
-			l_similarity = model_distance.getSimilarity((char*)ref.at ( i ).c_str(), (char*)hyp.at ( j ).c_str());
+			refWord = ref.at ( i );
+			hypWord = hyp.at ( j );
+			l_similarity = model_distance.getSimilarity(refWord, hypWord );
 			l_erreur = 1-l_similarity; 
 			if ( ( int ) refSpans.size() ==  0 || ( int ) hypSpans.size() ==  0 || trouverIntersection ( refSpans.at ( i ), curHypSpans.at ( j ) ) || l_similarity >= m_threshold)
 			{
-			    if ( l_similarity == 1 || ( int ) ( ref.at ( i ).compare ( hyp.at ( j ) ) ) == 0  )
+			    if ( l_similarity >= m_threshold || refWord.compare(hypWord) == 0 )
 			    {
 				cost = match_cost + score;
 				if ( ( S->at(i+1).at(j+1) == -1 ) || ( cost < S->at(i+1).at(j+1) ) )
@@ -736,9 +740,11 @@ namespace TERCpp
 		    }
 		    if ( ( i < ref_size ) && ( j < hyp_size ) )
 		    {
+			refWord = ref.at ( i );
+			hypWord = hyp.at ( j );
 			if ( ( int ) refSpans.size() ==  0 || ( int ) hypSpans.size() ==  0 || trouverIntersection ( refSpans.at ( i ), curHypSpans.at ( j ) ) )
 			{
-			    if ( ( int ) ( ref.at ( i ).compare ( hyp.at ( j ) ) ) == 0 )
+			    if ( ( int ) ( refWord.compare ( hypWord ) ) == 0 )
 			    {
 				cost = match_cost + score;
 				if ( ( S->at(i+1).at(j+1) == -1 ) || ( cost < S->at(i+1).at(j+1) ) )
@@ -760,7 +766,7 @@ namespace TERCpp
 			    {
 				if (m_deep)
 				{
-				    l_similarity = model_distance.getSimilarity((char*)ref.at ( i ).c_str(), (char*)hyp.at ( j ).c_str());
+				    l_similarity = model_distance.getSimilarity(refWord, hypWord);
 				    l_erreur = 1-l_similarity; 
 	    // 			cerr << ref.at ( i ) << "\t" << hyp.at ( j ) << "\t" << l_similarity << "\t" << l_erreur <<endl;
 				}

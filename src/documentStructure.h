@@ -42,6 +42,7 @@ namespace TERCpp
 	    string m_fileName;
             string docId;
             string sysId;
+	    map < string, int > l_hash;
             vector<segmentStructure> seg;
         public:
 	    string getFileName();

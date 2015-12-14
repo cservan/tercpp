@@ -23,7 +23,7 @@
 // #include <boost/bind/bind_template.hpp>
 
 
-// #include <iostream>
+#include <thread>
 // #include <boost/filesystem/fstream.hpp>
 // #include <boost/archive/xml_oarchive.hpp>
 // #include <boost/archive/xml_iarchive.hpp>
@@ -68,6 +68,7 @@ namespace TERCpp
 	evalParameters.matchCost = 0.0;
 	
         evalParameters = Tools::copyParam ( p );
+	Tools::printParams(evalParameters);
 	if (evalParameters.deep)
 	{
 	    m_distance = new word2vecdistance::distance(evalParameters.W2VModel);
@@ -139,7 +140,7 @@ namespace TERCpp
 		    cerr << " hypothesis size : "<<  hypothesisTxt.getSize() << endl<<"END DEBUG"<<endl;
 	}
 	  
-        int incDocRefences = 0;
+//         int incDocRefences = 0;
         stringstream l_stream;
         vector<float> editsResults;
         vector<float> deepEditsResults;
@@ -167,11 +168,11 @@ namespace TERCpp
 	    {
 		if (evalParameters.deeper)
 		{
-		    sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "D-NumEr", "NumEr", "AvNumWd", "D-WER", "WER");
+		    sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "D-NumEr", "NumEr", "AvNumWd", "WER-E (full)", "WER");
 		}
 		else
 		{
-		    sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "NumEr", "D-NumEr", "AvNumWd", "WER", "D-WER");
+		    sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "NumEr", "D-NumEr", "AvNumWd", "WER", "WER-E (simple)");
 		}
 	    }
 	    else
@@ -185,11 +186,11 @@ namespace TERCpp
 	    {
 		if (evalParameters.deeper)
 		{
-		    sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "D-NumEr", "NumEr", "AvNumWd", "D-WER", "TER");
+		    sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "D-NumEr", "NumEr", "AvNumWd", "TER-E (full)", "TER");
 		}
 		else
 		{
-		    sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "NumEr", "D-NumEr", "AvNumWd", "WER", "D-TER");
+		    sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "NumEr", "D-NumEr", "AvNumWd", "TER", "TER-E (simple)");
 		}
 	    }
 	    else
@@ -293,14 +294,14 @@ namespace TERCpp
 	{
 	    if (evalParameters.deeper)
 	    {
-		cout << "Total WER:\t" << scoreTER ( deepEditsResults, wordsResults )<< "\t\tTotal D-WER:\t" << scoreTER ( editsResults, wordsResults );
+		cout << "Total WER:\t" << scoreTER ( deepEditsResults, wordsResults )<< "\t\tTotal WER-E (full):\t" << scoreTER ( editsResults, wordsResults );
 	    }
 	    else
 	    {
 		cout << "Total WER:\t" << scoreTER ( editsResults, wordsResults );
 		if (evalParameters.deep || evalParameters.deepcpp)
 		{
-		    cout << "\t\tTotal D-WER:\t" << scoreTER ( deepEditsResults, wordsResults );
+		    cout << "\t\tTotal WER-E (simple):\t" << scoreTER ( deepEditsResults, wordsResults );
 		}
 	    }
 	    cout << endl;
@@ -309,14 +310,14 @@ namespace TERCpp
 	{
 	    if (evalParameters.deeper)
 	    {
-		cout << "Total TER:\t" << scoreTER ( deepEditsResults, wordsResults )<< "\t\tTotal D-TER:\t" << scoreTER ( editsResults, wordsResults );
+		cout << "Total TER:\t" << scoreTER ( deepEditsResults, wordsResults )<< "\t\tTotal TER-E (full):\t" << scoreTER ( editsResults, wordsResults );
 	    }
 	    else
 	    {
 		cout << "Total TER:\t" << scoreTER ( editsResults, wordsResults );
 		if (evalParameters.deep || evalParameters.deepcpp)
 		{
-		    cout << "\t\tTotal D-TER:\t" << scoreTER ( deepEditsResults, wordsResults );
+		    cout << "\t\tTotal TER-E (simple):\t" << scoreTER ( deepEditsResults, wordsResults );
 		}
 	    }
 	    cout << endl;
@@ -483,33 +484,41 @@ namespace TERCpp
 	}
 	else
 	{
-    	    vector<terAlignment> lv_results(evalParameters.threads);
+//     	    vector<terAlignment> lv_results(evalParameters.threads);
 // 	    terCalc * l_evalTER;
 	    int lv_cpt=0;
-	    boost::thread_group * tgroup;
-	    tgroup = new boost::thread_group();
-	    for ( vector<segmentStructure>::iterator segHypIt = docStructhypothesis.getSegments()->begin(); segHypIt != docStructhypothesis.getSegments()->end(); segHypIt++ )
+// 	    boost::thread_group * tgroup;
+// 	    tgroup = new boost::thread_group();
+	    std::thread * tgroup = new std::thread[evalParameters.threads];
+	    //for ( vector<segmentStructure>::iterator segHypIt = docStructhypothesis.getSegments()->begin(); segHypIt != docStructhypothesis.getSegments()->end(); segHypIt++ )
+	    for ( int segHypIt = 0; segHypIt < (int)docStructhypothesis.getSegments()->size(); segHypIt++ )
 	    {
       // 	  cerr << "************************************************************************************************************************************************************************************** 1 " << (docStructhypothesis.getSegments()->at(0)).toString()<<endl;
-		segmentStructure * l_segRef = docStructReference.getSegment ( segHypIt->getSegId() );
-		segmentStructure * l_segHyp = docStructhypothesis.getSegment ( segHypIt->getSegId() );
-		boost::thread *t;
+		string * l_segId = new string (docStructhypothesis.getSegments()->at(segHypIt).getSegId());
+		segmentStructure * l_segRef = docStructReference.getSegment ( (*l_segId) );
+		segmentStructure * l_segHyp = docStructhypothesis.getSegment ( (*l_segId) );
+//		boost::thread *t 
 
 // 		subEvaluate(l_segRef , l_segHyp);
-		t = new boost::thread(boost::bind(&multiEvaluation::subEvaluate,this,l_segRef , l_segHyp));
-		tgroup->add_thread(t);
+// 		t = new boost::thread(boost::bind(&multiEvaluation::subEvaluate,this,l_segRef , l_segHyp));
+// 		t = new boost::thread(boost::bind(&multiEvaluation::subEvaluate,this,&docStructReference , &docStructhypothesis, l_segId));
+		tgroup[lv_cpt]=std::thread(&multiEvaluation::subEvaluate, this,l_segRef , l_segHyp );
+// 		tgroup->add_thread(t);
 		lv_cpt++;
-		if (lv_cpt % evalParameters.threads == 0)
+		if (lv_cpt >= evalParameters.threads)
 		{
 // 		    cerr << "JOIN...";
-		    tgroup->join_all();
+		    for (int i = 0; i< lv_cpt ; i++)
+		      tgroup[i].join();
+		    
+		    //tgroup->join_all();
 // 		    cerr << "FINISHED!" << endl;
 		    lv_cpt = 0;
 // 		    delete(tgroup);
 // 		    tgroup = new boost::thread_group();
 
 		}
-      // 	  cerr << ".";
+//       	  cerr << ".";
 		if (evalParameters.count_verbose) 
 		{
 		    l_cpt++; cerr << l_cpt<< endl; 
@@ -521,7 +530,9 @@ namespace TERCpp
 		}
 	    }
 // 	    cerr << "JOIN...";
-	    tgroup->join_all();
+	    for (int i = 0; i< lv_cpt ; i++)
+	      tgroup[i].join();
+// 	    tgroup->join_all();
 // 	    cerr << "FINISHED!" << endl;
 	}
 // 	cerr << "FINI" <<endl;
@@ -536,10 +547,113 @@ namespace TERCpp
     }
     void multiEvaluation::subEvaluate(segmentStructure* segStructReference, segmentStructure* segStructHypothesis)
     {
+// 	vector<string> l_vhyp;
+// 	vector<string> l_vref;
+	terAlignment l_result;
+	terCalc * l_evalTER = new terCalc();
+	l_evalTER->setDebugMode(evalParameters.debugMode);
+	l_evalTER->setCosts(evalParameters);
+	if (evalParameters.deep || evalParameters.deepcpp)
+	{
+	      l_evalTER->setDeep(true);
+// 	      l_evalTER->setW2VModel(m_distance);
+	      l_evalTER->m_deeper = evalParameters.deeper;
+	      l_evalTER->m_threshold = evalParameters.threshold;
+// 	      cerr << l_evalTER->m_deeper  << endl;
+	      
+	}
+// 	l_vhyp=segStructHypothesis->getContent();
+// 	l_vref=segStructReference->getContent();
+	if (evalParameters.WER) 
+	{
+	    if (evalParameters.deep || evalParameters.deepcpp)
+	    {
+		if (evalParameters.deepcpp)
+		{
+		    l_result = l_evalTER->WERCalculation ( segStructHypothesis->getContent(), segStructReference->getContent(), (*m_distancecpp));
+		}
+		else
+		{
+		    l_result = l_evalTER->WERCalculation ( segStructHypothesis->getContent(), segStructReference->getContent(), (*m_distance));
+		}
+	    }
+	    else
+	    {
+		l_result = l_evalTER->WERCalculation ( segStructHypothesis->getContent(), segStructReference->getContent());
+	    }
+	}
+	else
+	{
+	    if (evalParameters.deep || evalParameters.deepcpp)
+	    {
+		if (evalParameters.deepcpp)
+		{
+		    l_result = l_evalTER->TER ( segStructHypothesis->getContent(), segStructReference->getContent(), (*m_distancecpp));
+		}
+		else
+		{
+		    l_result = l_evalTER->TER ( segStructHypothesis->getContent(), segStructReference->getContent(), (*m_distance));
+		}
+	    }
+	    else
+	    {
+		l_result = l_evalTER->TER ( segStructHypothesis->getContent(), segStructReference->getContent());
+	    }
+		  
+	}
+	delete l_evalTER;
+	l_result.averageWords = segStructReference->getAverageLength();
+	if (l_result.averageWords==0.0)
+	{
+	    cerr << "ERROR : tercpp : multiEvaluation::evaluate : averageWords is equal to zero" <<endl;
+	    exit(0);
+	}
+	segStructReference->setAlignment ( l_result );
+	if (evalParameters.debugMode)
+	{
+	      cerr <<"DEBUG tercpp : multiEvaluation::evaluate : testing   "<<endl<<"reference : "<<  segStructReference->getSegId() <<endl;
+	      cerr << "Hypothesis : "<< vectorToString(segStructHypothesis->getContent())<<endl;
+	      cerr << "Reference : "<<	vectorToString(segStructReference->getContent())<<endl;
+	      cerr << "numEdits : "<< l_result.numEdits  <<endl;
+	      cerr << "deepNumEdits : "<< l_result.deepNumEdits <<endl;
+	      cerr << "averageWords : "<< l_result.averageWords  <<endl;
+	      cerr << "score : "<<  l_result.scoreAv()  <<endl;
+	      cerr << "deep score : "<<  l_result.deepScoreAv()  <<endl;
+	      cerr << "terAlignment.toString :" << l_result.toString()<<endl;
+	      cerr << "END DEBUG"<<endl<<endl;
+	}
+	if ((segStructHypothesis->getAlignment().numWords == 0) && (segStructHypothesis->getAlignment().numEdits == 0 ))
+	{
+	    segStructHypothesis->setAlignment ( l_result );
+	    segStructHypothesis->setBestDocId ( segStructReference->getBestDocId());
+	}
+	else if ( l_result.scoreAv() < segStructHypothesis->getAlignment().scoreAv() )
+	{
+	    segStructHypothesis->setAlignment ( l_result );
+	    segStructHypothesis->setBestDocId ( segStructReference->getBestDocId());
+	}
+	if (evalParameters.debugMode)
+	{
+	      cerr << "DEBUG tercpp : multiEvaluation::evaluate : testing   "<<endl;
+	      cerr << "hypothesis : "<<  segStructHypothesis->getSegId() <<endl;
+	      cerr << "hypothesis score : "<<  segStructHypothesis->getAlignment().scoreAv() <<endl;
+// 			cerr << "BestDoc Id : "<<  segStructHypothesis->getBestDocId() <<endl;
+	      cerr << "new score : "<<  l_result.scoreAv()  <<endl;
+	      cerr << "new deep score : "<< l_result.deepScoreAv() <<endl;
+	      cerr << "new BestDoc Id : "<< segStructReference->getBestDocId() <<endl;
+	      cerr << "Best Alignements : "<< l_result.printAlignments() <<endl;
+	      cerr << "END DEBUG"<<endl<<endl;
+	}
+    }
+
+    void multiEvaluation::subEvaluateBis( documentStructure* docStructReference, documentStructure* docStructhypothesis, string * segId)
+    {
 	vector<string> l_vhyp;
 	vector<string> l_vref;
 	terAlignment l_result;
 	terCalc * l_evalTER = new terCalc();
+	segmentStructure * segStructReference = docStructReference->getSegment ( (*segId) );
+	segmentStructure * segStructHypothesis = docStructhypothesis->getSegment ( (*segId) );
 	l_evalTER->setDebugMode(evalParameters.debugMode);
 	l_evalTER->setCosts(evalParameters);
 	if (evalParameters.deep || evalParameters.deepcpp)
@@ -634,7 +748,6 @@ namespace TERCpp
 	      cerr << "END DEBUG"<<endl<<endl;
 	}
     }
-
     string multiEvaluation::scoreTER ( vector<float> numEdits, vector<float> numWords )
     {
         vector<float>::iterator editsIt = numEdits.begin();
@@ -724,11 +837,11 @@ namespace TERCpp
 	    {
 		if (evalParameters.deeper)
 		{
-		    sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "D-NumEr", "NumEr", "AvNumWd", "D-WER", "WER");
+		    sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "D-NumEr", "NumEr", "AvNumWd", "WER-E (full)", "WER");
 		}
 		else
 		{
-		    sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "NumEr", "D-NumEr", "AvNumWd", "WER", "D-WER");
+		    sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "NumEr", "D-NumEr", "AvNumWd", "WER", "WER-E (simple)");
 		}
 	    }
 	    else
@@ -742,11 +855,11 @@ namespace TERCpp
 	    {
 		if (evalParameters.deeper)
 		{
-		    sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "D-NumEr", "NumEr", "AvNumWd", "D-WER", "TER");
+		    sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "D-NumEr", "NumEr", "AvNumWd", "TER-E (full)", "TER");
 		}
 		else
 		{
-		    sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "NumEr", "D-NumEr", "AvNumWd", "WER", "D-TER");
+		    sprintf ( outputCharBuffer, "%19s | %4s | %4s | %4s | %4s | %4s | %6s | %8s | %8s | %8s | %8s", "Sent Id", "Ins", "Del", "Sub", "Shft", "WdSh", "NumEr", "D-NumEr", "AvNumWd", "TER", "TER-E (simple)");
 		}
 	    }
 	    else
@@ -870,14 +983,14 @@ namespace TERCpp
 	{
 	    if (evalParameters.deeper)
 	    {
-		cout << "Total WER:\t" << scoreTER ( deepEditsResults, wordsResults )<< "\t\tTotal D-WER:\t" << scoreTER ( editsResults, wordsResults );
+		cout << "Total WER:\t" << scoreTER ( deepEditsResults, wordsResults )<< "\t\tTotal WER-E (full):\t" << scoreTER ( editsResults, wordsResults );
 	    }
 	    else
 	    {
 		cout << "Total WER:\t" << scoreTER ( editsResults, wordsResults );
 		if (evalParameters.deep || evalParameters.deepcpp)
 		{
-		    cout << "\t\tTotal D-WER:\t" << scoreTER ( deepEditsResults, wordsResults );
+		    cout << "\t\tTotal WER-E (simple):\t" << scoreTER ( deepEditsResults, wordsResults );
 		}
 	    }
 	    cout << endl;
@@ -886,14 +999,14 @@ namespace TERCpp
 	{
 	    if (evalParameters.deeper)
 	    {
-		cout << "Total TER:\t" << scoreTER ( deepEditsResults, wordsResults )<< "\t\tTotal D-TER:\t" << scoreTER ( editsResults, wordsResults );
+		cout << "Total TER:\t" << scoreTER ( deepEditsResults, wordsResults )<< "\t\tTotal TER-E (full):\t" << scoreTER ( editsResults, wordsResults );
 	    }
 	    else
 	    {
 		cout << "Total TER:\t" << scoreTER ( editsResults, wordsResults );
 		if (evalParameters.deep || evalParameters.deepcpp)
 		{
-		    cout << "\t\tTotal D-TER:\t" << scoreTER ( deepEditsResults, wordsResults );
+		    cout << "\t\tTotal TER-E (simple):\t" << scoreTER ( deepEditsResults, wordsResults );
 		}
 	    }
 	    cout << endl;

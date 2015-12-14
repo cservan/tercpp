@@ -184,7 +184,7 @@ namespace word2vecdistance
     }
     return to_return;
   }
-  float distance::getSimilarity(string s1, string s2)
+/*  float distance::getSimilarity(string s1, string s2)
   {
     float vec1[max_size];
     float vec2[max_size];
@@ -310,7 +310,7 @@ namespace word2vecdistance
 // 	printf("%50s\t\t%f\n", bestw[a], bestd[a]);
 //       }
 //       return 1.0;
-  }
+  }*/
   float distance::getSimilarityTest(string &s1, string &s2)
   {
 //       float vec1[max_size];
@@ -355,12 +355,25 @@ namespace word2vecdistance
       }
       return dist;
   }
+  float distance::getSimilarity(string &s1, string &s2)
+  {
+      char st1[max_w];
+      char st2[max_w];
+      strcpy(st1, s1.c_str());
+      strcpy(st2, s2.c_str());
+      return getSimilarity(st1,st2);
+  }
+  float distance::getSimilarityProb(string &s1, string &s2)
+  {
+      char st1[max_w];
+      char st2[max_w];
+      strcpy(st1, s1.c_str());
+      strcpy(st2, s2.c_str());
+      return getSimilarityProb(st1,st2);
+  }
+
   float distance::getSimilarity(char * st1, char * st2)
   {
-//       float vec1[max_size];
-//       float vec2[max_size];
-//       float len1=0;
-//       float len2=0;
       int pos1 = -1; 
       int pos2 = -1;
       b = 0;
@@ -375,19 +388,36 @@ namespace word2vecdistance
 	return 0.0;
       }
       dist = 0;
+      if (pos1 == pos2)
+      {
+	  return 1.0;
+      }
       for (a = 0; a < size; a++) 
       {
 	  dist += M[a + pos1 * size] * M[a + pos2 * size] ;
       }
       return dist;
   }
+  float distance::getSimilarityProb(char * st1, char * st2)
+  {
+      return (1.0+getSimilarity(st1,st2))/2.0;
+  }
   float distance::getDistance(char * st1, char * st2)
   {
       return (1.0-getSimilarity(st1,st2));
   }
-  float distance::getDistance(string st1, string st2)
+  float distance::getDistance(string& st1, string& st2)
   {
       return (1.0-getSimilarity(st1,st2));
+  }
+ 
+  float distance::getDistanceProb(char * st1, char * st2)
+  {
+      return (1.0-getSimilarityProb(st1,st2));
+  }
+  float distance::getDistanceProb(string& st1, string& st2)
+  {
+      return (1.0-getSimilarityProb(st1,st2));
   }
  
   
