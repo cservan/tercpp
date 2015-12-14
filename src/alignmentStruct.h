@@ -55,6 +55,7 @@ namespace TERCpp
 //   int moveto;
 //   int newloc;
             vector<string> nwords; // The words we shifted
+            vector<int> nindexes; // The words we shifted
             vector<char> alignment ; // for pra_more output
             vector<vecInt> aftershift; // for pra_more output
             // This is used to store the cost of a shift, so we don't have to

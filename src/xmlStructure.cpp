@@ -300,7 +300,7 @@ namespace TERCpp
                         cerr << "DEBUG tercpp : xmlStructure::copy_to_SGMLDocument : " << endl << "TERCOM AT FALSE " << endl << "END DEBUG" << endl;
                     }
 
-                    line_mod = tokenizePunct ( line_mod );
+//                    line_mod = tokenizePunct ( line_mod );
                 }
                 if ( !xmlParams.caseOn )
                 {

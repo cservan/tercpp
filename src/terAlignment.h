@@ -46,6 +46,7 @@ namespace TERCpp
             vector<terShift> allshifts;
 	    vector<int> hyp_int;
 	    vector<int> aftershift_int;
+	    vector<int> hyp_index;
 
             float numEdits;
             float deepNumEdits;
@@ -76,6 +77,7 @@ namespace TERCpp
 	    vector<terShift> updateShifts();
 	    void set(terAlignment& l_terAlignment);
 	    void set(terAlignment* l_terAlignment);
+	    void initializeIndex();
     };
 
 }

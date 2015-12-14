@@ -61,6 +61,7 @@ namespace TERCpp
 	ref=l_terAlignment.ref;
 	hyp=l_terAlignment.hyp;
 	aftershift=l_terAlignment.aftershift;
+	hyp_index=l_terAlignment.hyp_index;
 // 	allshifts=l_terAlignment.allshifts;
 	hyp_int=l_terAlignment.hyp_int;
 	aftershift_int=l_terAlignment.aftershift_int;
@@ -87,6 +88,7 @@ namespace TERCpp
 	ref=l_terAlignment->ref;
 	hyp=l_terAlignment->hyp;
 	aftershift=l_terAlignment->aftershift;
+	hyp_index=l_terAlignment->hyp_index;
 // 	allshifts=l_terAlignment->allshifts;
 	hyp_int=l_terAlignment->hyp_int;
 	aftershift_int=l_terAlignment->aftershift_int;
@@ -404,6 +406,14 @@ vector< terShift > terAlignment::updateShifts()
       return to_return;
     
 }
+    void terAlignment::initializeIndex()
+    {
+	  hyp_index.clear();
+	  for (int i=0; i< (int)hyp.size(); i++)
+	  {
+	      hyp_index.push_back(i);
+	  }
+    }
 
 
 }

@@ -185,16 +185,6 @@ namespace HashMapSpace
         return to_return.str();
     }
 
-    /**
-     *
-     */
-    void hashMapInfos::printHash()
-    {
-        for ( vector<infosHasher>:: iterator l_hasher=m_hasher.begin() ; l_hasher!=m_hasher.end() ; l_hasher++ )
-        {
-//         cout << ( *l_hasher ).getHashKey() <<" | "<< ( *l_hasher ).getKey() << " | " << ( *l_hasher ).getValue() << endl;
-        }
-    }
 
 
 

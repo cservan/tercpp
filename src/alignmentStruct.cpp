@@ -36,6 +36,7 @@ namespace TERCpp
     void alignmentStruct::set(alignmentStruct l_alignmentStruct)
     {
 	nwords=l_alignmentStruct.nwords; // The words we shifted
+	nindexes=l_alignmentStruct.nindexes; // The indexes we shifted
         alignment=l_alignmentStruct.alignment ; // for pra_more output
         aftershift=l_alignmentStruct.aftershift; // for pra_more output
         cost=l_alignmentStruct.cost;

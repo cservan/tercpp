@@ -1674,6 +1674,7 @@ namespace TERCpp
     terAlignment terCalc::TER ( vector<string>& hyp, vector<string>& ref)
     {
         hashMapInfos rloc = createConcordMots ( hyp, ref );
+	
 //         terAlignment cur_align = minimizeDistanceEdition ( hyp, ref, hypSpans );
         terAlignment cur_align;
         minimizeDistanceEdition ( hyp, ref, hypSpans , & cur_align );
@@ -1681,6 +1682,7 @@ namespace TERCpp
         cur_align.hyp = hyp;
         cur_align.ref = ref;
         cur_align.aftershift = hyp;
+	cur_align.initializeIndex();
         float edits = 0;
         float deepedits = 0;
 //         int numshifts = 0;
@@ -2182,7 +2184,7 @@ namespace TERCpp
         bool anygain = false;
         vector <bool> * herr = new vector<bool>(( int ) hyp.size() + 1 );
         vector <bool> * rerr = new vector<bool>( ( int ) ref.size() + 1 ); 
-        vector <int> * ralign = new vector<int>( ( int ) ref.size() + 1 ); 
+        vector <int> * ralign = new vector<int>( ( int ) ref.size() + 1 );
 	int l_i,i,j,s;
 	for (i = 0 ; i< ( int ) hyp.size() + 1 ; i++)
 	{
@@ -2207,7 +2209,7 @@ namespace TERCpp
 	
         if ( PRINT_DEBUG )
         {
-            cerr << "BEGIN DEBUG : terCalc::findBestShift (after the calculateTerAlignment call) :" << endl;
+            cerr << "BEGIN DEBUG : terCalc::findBestShift (after the calculateTerAlignment call) HERE :" << endl;
 	    cerr << "indices : ";
 	    for (l_i=0; l_i < ( int ) ref.size() ; l_i++)
 	    {
@@ -2221,6 +2223,8 @@ namespace TERCpp
 	    cerr << "rerr   : "<<vectorToString(rerr,"\t",( int ) ref.size()) << " | " << ( int ) ref.size() <<endl;
 	    cerr << "ralign : "<< vectorToString(ralign,"\t",( int ) ref.size()) << " | " << ( int ) ref.size() << endl;
 	    cerr << "Alignt  : "<< vectorToString(med_align.alignment,"\t",( int ) med_align.alignment.size()) << " | " << ( int ) ref.size() << endl;
+	    cerr << "Indexes : "<< vectorToString(med_align.hyp_index, "\t") <<endl;
+	    cerr << "rloc : "<< rloc.toString() << endl;
 	    cerr << "END DEBUG " << endl;
         }
         poss_shifts = calculerPermutations ( cur, ref, rloc, med_align, herr, rerr, ralign  );
@@ -2708,7 +2712,17 @@ namespace TERCpp
     }
     alignmentStruct terCalc::permuter ( vector< string >& words, TERCpp::terShift* s )
     {
+//         return permuter ( words, s->start, s->end, s->newloc );
         return permuter ( words, s->start, s->end, s->newloc );
+    }
+
+    alignmentStruct terCalc::permuter ( vector< string >& words, vector<int>& indexes, TERCpp::terShift& s )
+    {
+        return permuter ( words, indexes, s.start, s.end, s.newloc );
+    }
+    alignmentStruct terCalc::permuter ( vector< string >& words, vector<int>& indexes, TERCpp::terShift* s )
+    {
+        return permuter ( words, indexes, s->start, s->end, s->newloc );
     }
 
 
@@ -2895,6 +2909,206 @@ namespace TERCpp
         to_return.aftershift = spans;
         return to_return;
     }
+    alignmentStruct terCalc::permuter ( vector< string >& words, vector< int >& indexes, int start, int end, int newloc )
+    {
+        int c = 0;
+        vector<string> nwords ( words );
+        vector<int> nindexes ( indexes );
+        vector<vecInt> spans ( ( int ) hypSpans.size() );
+        alignmentStruct to_return;
+        if ( PRINT_DEBUG )
+        {
+
+            if ( ( int ) hypSpans.size() > 0 )
+            {
+                cerr << "BEGIN DEBUG : terCalc::permuter :" << endl << "word length: " << ( int ) words.size() << " span length: " << ( int ) hypSpans.size() << endl ;
+            }
+            else
+            {
+                cerr << "BEGIN DEBUG : terCalc::permuter :" << endl << "word length: " << ( int ) words.size() << " span length: null" << endl ;
+            }
+            cerr << "BEGIN DEBUG : terCalc::permuter :" << endl << join(" ",words) << " start: " << start << " end: " << end << " newloc "<< newloc << endl << "END DEBUG " << endl;
+        }
+        if (newloc >=  ( int ) words.size())
+	{
+	    if ( PRINT_DEBUG )
+	    {
+		cerr << "WARNING: Relocation over the size of the hypothesis, replacing at the end of it."<<endl;
+	    }
+	    newloc =  ( int ) words.size()-1;
+	}
+	  
+// 		}
+
+        if ( newloc == -1 )
+        {
+            for ( int i = start; i <= end;i++ )
+            {
+                nwords.at ( c++ ) = words.at ( i );
+                nindexes.at ( c++ ) = indexes.at ( i );
+                if ( ( int ) hypSpans.size() > 0 )
+                {
+                    spans.at ( c - 1 ) = hypSpans.at ( i );
+                }
+            }
+            for ( int i = 0; i <= start - 1;i++ )
+            {
+                nwords.at ( c++ ) = words.at ( i );
+                nindexes.at ( c++ ) = indexes.at ( i );
+                if ( ( int ) hypSpans.size() > 0 )
+                {
+                    spans.at ( c - 1 ) = hypSpans.at ( i );
+                }
+            }
+            for ( int i = end + 1; i < ( int ) words.size();i++ )
+            {
+                nwords.at ( c++ ) = words.at ( i );
+                nindexes.at ( c++ ) = indexes.at ( i );
+                if ( ( int ) hypSpans.size() > 0 )
+                {
+                    spans.at ( c - 1 ) = hypSpans.at ( i );
+                }
+            }
+        }
+        else
+        {
+            if ( newloc < start )
+            {
+		
+                for ( int i = 0; i < newloc; i++ )
+                {
+                    nwords.at ( c++ ) = words.at ( i );
+                    nindexes.at ( c++ ) = indexes.at ( i );
+                    if ( ( int ) hypSpans.size() > 0 )
+                    {
+                        spans.at ( c - 1 ) = hypSpans.at ( i );
+                    }
+                }
+                for ( int i = start; i <= end;i++ )
+                {
+                    nwords.at ( c++ ) = words.at ( i );
+                    nindexes.at ( c++ ) = indexes.at ( i );
+                    if ( ( int ) hypSpans.size() > 0 )
+                    {
+                        spans.at ( c - 1 ) = hypSpans.at ( i );
+                    }
+                }
+                for ( int i = newloc ; i < start ;i++ )
+                {
+                    nwords.at ( c++ ) = words.at ( i );
+                    nindexes.at ( c++ ) = indexes.at ( i );
+                    if ( ( int ) hypSpans.size() > 0 )
+                    {
+                        spans.at ( c - 1 ) = hypSpans.at ( i );
+                    }
+                }
+                for ( int i = end + 1; i < ( int ) words.size();i++ )
+                {
+                    nwords.at ( c++ ) = words.at ( i );
+                    nindexes.at ( c++ ) = indexes.at ( i );
+                    if ( ( int ) hypSpans.size() > 0 )
+                    {
+                        spans.at ( c - 1 ) = hypSpans.at ( i );
+                    }
+                }
+            }
+            else
+            {
+                if ( newloc > end )
+                {
+                    for ( int i = 0; i <= start - 1; i++ )
+                    {
+                        nwords.at ( c++ ) = words.at ( i );
+                        nindexes.at ( c++ ) = indexes.at ( i );
+                        if ( ( int ) hypSpans.size() > 0 )
+                        {
+                            spans.at ( c - 1 ) = hypSpans.at ( i );
+                        }
+                    }
+                    for ( int i = end + 1; i <= newloc;i++ )
+                    {
+                        nwords.at ( c++ ) = words.at ( i );
+                        nindexes.at ( c++ ) = indexes.at ( i );
+                        if ( ( int ) hypSpans.size() > 0 )
+                        {
+                            spans.at ( c - 1 ) = hypSpans.at ( i );
+                        }
+                    }
+                    for ( int i = start; i <= end;i++ )
+                    {
+                        nwords.at ( c++ ) = words.at ( i );
+                        nindexes.at ( c++ ) = indexes.at ( i );
+                        if ( ( int ) hypSpans.size() > 0 )
+                        {
+                            spans.at ( c - 1 ) = hypSpans.at ( i );
+                        }
+                    }
+                    for ( int i = newloc + 1; i < ( int ) words.size();i++ )
+                    {
+                        nwords.at ( c++ ) = words.at ( i );
+                        nindexes.at ( c++ ) = indexes.at ( i );
+                        if ( ( int ) hypSpans.size() > 0 )
+                        {
+                            spans.at ( c - 1 ) = hypSpans.at ( i );
+                        }
+                    }
+                }
+                else
+                {
+                    // we are moving inside of ourselves
+                    for ( int i = 0; i <= start - 1; i++ )
+                    {
+                        nwords.at ( c++ ) = words.at ( i );
+                        nindexes.at ( c++ ) = indexes.at ( i );
+                        if ( ( int ) hypSpans.size() > 0 )
+                        {
+                            spans.at ( c - 1 ) = hypSpans.at ( i );
+                        }
+                    }
+                    for ( int i = end + 1; ( i < ( int ) words.size() ) && ( i <= ( end + ( newloc - start ) ) ); i++ )
+                    {
+                        nwords.at ( c++ ) = words.at ( i );
+                        nindexes.at ( c++ ) = indexes.at ( i );
+                        if ( ( int ) hypSpans.size() > 0 )
+                        {
+                            spans.at ( c - 1 ) = hypSpans.at ( i );
+                        }
+                    }
+                    for ( int i = start; i <= end;i++ )
+                    {
+                        nwords.at ( c++ ) = words.at ( i );
+                        nindexes.at ( c++ ) = indexes.at ( i );
+                        if ( ( int ) hypSpans.size() > 0 )
+                        {
+                            spans.at ( c - 1 ) = hypSpans.at ( i );
+                        }
+                    }
+                    for ( int i = ( end + ( newloc - start ) + 1 ); i < ( int ) words.size();i++ )
+                    {
+                        nwords.at ( c++ ) = words.at ( i );
+                        nindexes.at ( c++ ) = indexes.at ( i );
+                        if ( ( int ) hypSpans.size() > 0 )
+                        {
+                            spans.at ( c - 1 ) = hypSpans.at ( i );
+                        }
+                    }
+                }
+            }
+        }
+        NBR_PERMUTS_CONSID++;
+	
+	
+        if ( PRINT_DEBUG )
+        {
+	    cerr << "nwords" << join(" ",nwords) << endl;
+	    cerr << "nindexes" << vectorToString(nindexes," ") << endl;
+// 	    cerr << "spans" << spans. << endl;
+	}
+	
+        to_return.nwords = nwords;
+        to_return.aftershift = spans;
+        return to_return;
+    }
     void terCalc::setDebugMode ( bool b )
     {
         PRINT_DEBUG = b;
@@ -2915,4 +3129,9 @@ namespace TERCpp
     {
 	m_deep = l_b;
     }
+    void terCalc::setThreshold(float f)
+    {
+	m_threshold = f;
+    }
+
 }

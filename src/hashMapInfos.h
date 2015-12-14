@@ -54,9 +54,6 @@ namespace HashMapSpace
             void printHash();
 	    string toString();
             vector<infosHasher> getHashMap();
-            string printStringHash();
-            string printStringHash2();
-            string printStringHashForLexicon();
     };
 
 
