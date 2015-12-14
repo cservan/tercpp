@@ -1,0 +1,1 @@
+this is test a for word aligner and tercpp script .
