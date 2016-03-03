@@ -30,7 +30,9 @@
 #include "sgmlDocument.h"
 #include "distance.h"
 #include <boost/thread/thread.hpp>
-#include "word2vec.h"
+#include <monolingual.hpp>
+
+// #include "word2vec.h"
 
 using namespace Tools;
 namespace TERCpp

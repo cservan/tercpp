@@ -35,7 +35,8 @@
 #include "alignmentStruct.h"
 #include "bestShiftStruct.h"
 #include "distance.h"
-#include "word2vec.h"
+// #include "word2vec.h"
+#include <monolingual.hpp>
 
 using namespace std;
 using namespace Tools;

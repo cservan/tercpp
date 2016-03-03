@@ -1018,7 +1018,7 @@ namespace TERCpp
 		    }
 		    if ( ( i < ref_size ) && ( j < hyp_size ) )
 		    {
-			l_similarity = model_distance.getSimilarity((char*)ref.at ( i ).c_str(), (char*)hyp.at ( j ).c_str());
+			l_similarity = model_distance.similarity((char*)ref.at ( i ).c_str(), (char*)hyp.at ( j ).c_str());
 			l_erreur = 1-l_similarity; 
 			if ( ( int ) refSpans.size() ==  0 || ( int ) hypSpans.size() ==  0 || trouverIntersection ( refSpans.at ( i ), curHypSpans.at ( j ) ) || l_similarity >= m_threshold)
 			{
@@ -1152,7 +1152,7 @@ namespace TERCpp
 			    {
 				if (m_deep)
 				{
-				    l_similarity = model_distance.getSimilarity((char*)ref.at ( i ).c_str(), (char*)hyp.at ( j ).c_str());
+				    l_similarity = model_distance.similarity((char*)ref.at ( i ).c_str(), (char*)hyp.at ( j ).c_str());
 				    l_erreur = 1-l_similarity; 
 	    // 			cerr << ref.at ( i ) << "\t" << hyp.at ( j ) << "\t" << l_similarity << "\t" << l_erreur <<endl;
 				}

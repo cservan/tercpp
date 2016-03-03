@@ -34,6 +34,8 @@ include_directories(${USERHOME}/Tools/boost_1_55_0/include)
 link_directories(${USERHOME}/Tools/boost_1_55_0/lib)
 link_directories(${USERHOME}/Tools/myLibs/icu/lib)
 include_directories(${USERHOME}/Tools/myLibs/icu/include)
+include_directories(${USERHOME}/Tools/multivec/include)
+link_directories(${USERHOME}/Tools/multivec/lib)
 #SET(CMAKE_CXX_FLAGS "-Wunused-local-typedefs")
 #add definitions, compiler switches, etc.
 ADD_DEFINITIONS(-Wall -O2 -static -std=c++0x -Wunused-local-typedefs )

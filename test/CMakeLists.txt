@@ -49,14 +49,14 @@ SET(tercpp_SRCS
    ${CMAKE_SOURCE_DIR}/src/documentStructure.cpp
    ${CMAKE_SOURCE_DIR}/src/multiEvaluation.cpp
    ${CMAKE_SOURCE_DIR}/src/distance.cpp
-   ${CMAKE_SOURCE_DIR}/src/bivec.cpp
-   ${CMAKE_SOURCE_DIR}/src/word2vec.cpp
+#    ${CMAKE_SOURCE_DIR}/src/bivec.cpp
+#    ${CMAKE_SOURCE_DIR}/src/word2vec.cpp
 )
 
-add_executable(tercpp.0.9.1-bivec ${tercpp_SRCS})
-target_link_libraries(tercpp.0.9.1-bivec boost_regex boost_system boost_filesystem boost_iostreams boost_thread boost_serialization rt)
+add_executable(tercpp.0.9.2-bivec ${tercpp_SRCS})
+target_link_libraries(tercpp.0.9.2-bivec boost_regex boost_system boost_filesystem boost_iostreams boost_thread boost_serialization rt multivec)
 #target_link_libraries(tercpp.0.7.1 tcmalloc)
 # target_link_libraries(tercpp tercalc xmlStructure documentStructure multiEvaluation)
 
-install(TARGETS tercpp.0.9.1-bivec DESTINATION bin)
+install(TARGETS tercpp.0.9.2-bivec DESTINATION bin)
 
