@@ -54,7 +54,7 @@ SET(tercpp_SRCS
 )
 
 add_executable(tercpp.0.9.2-bivec ${tercpp_SRCS})
-target_link_libraries(tercpp.0.9.2-bivec boost_regex boost_system boost_filesystem boost_iostreams boost_thread boost_serialization rt multivec)
+target_link_libraries(tercpp.0.9.2-bivec multivec boost_regex boost_system boost_filesystem boost_iostreams boost_thread boost_serialization rt)
 #target_link_libraries(tercpp.0.7.1 tcmalloc)
 # target_link_libraries(tercpp tercalc xmlStructure documentStructure multiEvaluation)
 
