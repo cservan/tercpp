@@ -11,6 +11,7 @@ tercpp: an open-source Translation Edit Rate (TER) scorer tool for Machine Trans
 ## Installation
 		
 See INSTALL for build instructions.
+You have to install firstly the multivec library : https://github.com/eske/multivec/
 
 ## Acknowledgement 
 
