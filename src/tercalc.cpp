@@ -894,11 +894,11 @@ namespace TERCpp
 	    cerr << "P:" <<endl;
 	    i = 0;
 	    j = 0;
-	    while ( ( i < (int)ref.size() ) )
+	    while ( ( i < (int)ref.size() + 1 ) )
 	    {
 		cerr<< i<< "\t";
 		j = 0;
-		while ( ( j < (int)hyp.size() ))
+		while ( ( j < (int)hyp.size() + 1 ))
 		{
 		    cerr << P->at(i).at(j)<< "\t";
 		    j++;
@@ -909,11 +909,11 @@ namespace TERCpp
 	    cerr << "S:" <<endl;
 	    i = 0;
 	    j = 0;
-	    while ( ( i < (int)ref.size() ) )
+	    while ( ( i < (int)ref.size() + 1 ) )
 	    {
 		cerr<< i<< "\t";
 		j = 0;
-		while ( ( j < (int)hyp.size() ))
+		while ( ( j < (int)hyp.size() + 1 ))
 		{
 		    cerr << S->at(i).at(j)<< "\t";
 		    j++;
@@ -924,11 +924,11 @@ namespace TERCpp
 	    cerr << "D:" <<endl;
 	    i = 0;
 	    j = 0;
-	    while ( ( i < (int)ref.size() ) )
+	    while ( ( i < (int)ref.size() + 1 ) )
 	    {
 		cerr<< i<< "\t";
 		j = 0;
-		while ( ( j < (int)hyp.size() ))
+		while ( ( j < (int)hyp.size() + 1 ))
 		{
 		    cerr << D->at(i).at(j)<< "\t";
 		    j++;
